@@ -12,7 +12,7 @@ class WishlistItem:
     def get(id):
         rows = app.db.execute('''
 SELECT id, uid, pid, time_added
-FROM Purchases
+FROM Wishes
 WHERE id = :id
 ''',
                               id=id)
@@ -32,15 +32,14 @@ ORDER BY time_added DESC
         return [WishlistItem(*row) for row in rows]
     
     @staticmethod
-    def Create(uid, gid, pid, time_added):
+    def Create(uid, pid, time_added):
         try:
             rows = app.db.execute("""
-INSERT INTO Users(uid, gid, pid, time_added)
-VALUES(:uid, :gid, :pid, :time_added)
+INSERT INTO Wishes(uid, pid, time_added)
+VALUES(:uid, :pid, :time_added)
 RETURNING id
 """,
                                   uid=uid,
-                                  gid=gid,
                                   pid=pid,
                                   time_added = time_added)  
             id = rows[0][0]
