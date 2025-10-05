@@ -1,0 +1,7 @@
+CREATE TABLE inventory (
+  seller_id     BIGINT NOT NULL REFERENCES users(id),
+  product_id    BIGINT NOT NULL REFERENCES products(id),
+  quantity      INTEGER NOT NULL CHECK (quantity >= 0),
+  PRIMARY KEY (seller_id, product_id)
+);
+CREATE INDEX idx_inventory_product ON inventory(product_id);
