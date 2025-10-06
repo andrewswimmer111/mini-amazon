@@ -2,7 +2,7 @@ from flask import render_template
 from flask_login import current_user
 import datetime
 
-from .models.product import Product
+
 from .models.wishlist import WishlistItem
 
 from flask import Blueprint
@@ -11,19 +11,26 @@ bp = Blueprint('wishlist', __name__)
 from flask import jsonify
 from flask import redirect, url_for
 from datetime import datetime, timezone
+from flask import request
 
 
 
 @bp.route('/wishlist')
 def wishlist():
-    # find the products on current user wishlist:
+    print("✅ entered wishlist route")  # add this
     if current_user.is_authenticated:
+        print("✅ user authenticated")
         items = WishlistItem.get_all_by_uid_since(
-            current_user.id, datetime(1900, 9, 14, 0, 0, 0))
+            current_user.id, datetime(2000, 9, 14, 0, 0, 0))
+        print("✅ finished DB query")
     else:
         return jsonify({}), 404
-    # render the page by adding information to the index.html file
-    return jsonify([item.__dict__ for item in items])
+    print("✅ rendering template")
+    return render_template('wishlist.html',
+                       items=items,
+                       humanize_time=humanize_time)
+
+
 
 @bp.route('/wishlist/add/<int:product_id>', methods=['POST'])
 def wishlist_add(product_id):
@@ -36,3 +43,7 @@ def wishlist_add(product_id):
     return redirect(url_for('wishlist.wishlist'))
 
 
+from humanize import naturaltime
+
+def humanize_time(dt):
+    return naturaltime(datetime.now() - dt)
