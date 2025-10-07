@@ -19,6 +19,22 @@
         <th scope="row">{{product.id}}</th>
         <td>{{product.name}}</td>
         <td>{{product.price}}</td>
+
+        <!-- Add to Wishlist button (only for logged-in users) -->
+        <!-- 🟢 Add to Wishlist Button -->
+        <td>
+          {% if current_user.is_authenticated %}
+            <form action="{{ url_for('wishlist.wishlist_add', product_id=product.id) }}"
+                  method="POST"
+                  style="display:inline;">
+              <input type="submit" class="btn btn-sm btn-outline-primary" value="Add to Wishlist" />
+            </form>
+          {% else %}
+            <a href="{{ url_for('users.login') }}" class="btn btn-sm btn-outline-secondary">
+              Log in to wishlist
+            </a>
+          {% endif %}
+        </td>
       </tr>
     {% endfor %}
   </tbody>
