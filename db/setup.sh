@@ -13,10 +13,10 @@ fi
 source ../.flaskenv
 dbname=$DB_NAME
 
-if [[ -n `psql -lqt | cut -d \| -f 1 | grep -w "$dbname"` ]]; then
-    dropdb $dbname
+if [[ -n `psql -qtc "SELECT datname FROM pg_database" | cut -d \| -f 1 | grep -w "$dbname"` ]]; then
+    psql -c "DROP DATABASE $dbname"
 fi
-createdb $dbname
+psql -c "CREATE DATABASE $dbname"
 
 psql -af create.sql $dbname
 cd $datadir
