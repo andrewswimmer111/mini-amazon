@@ -4,7 +4,7 @@ mypath=`realpath "$0"`
 mybase=`dirname "$mypath"`
 cd $mybase
 
-datadir="${1:-data/}"
+datadir="${1:-generated/}"
 if [ ! -d $datadir ] ; then
     echo "$datadir does not exist under $mybase"
     exit 1
@@ -20,4 +20,9 @@ psql -c "CREATE DATABASE $dbname"
 
 psql -af create.sql $dbname
 cd $datadir
+
+echo "Running from: $(pwd)"
+echo "Files here:"
+ls -l
+
 psql -af $mybase/load.sql $dbname
