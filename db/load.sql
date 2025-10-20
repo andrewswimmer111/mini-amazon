@@ -1,16 +1,37 @@
+\echo 'Loading users...'
 \COPY Users FROM 'Users.csv' WITH DELIMITER ',' NULL '' CSV
--- since id is auto-generated; we need the next command to adjust the counter
--- for auto-generation so next INSERT will not clash with ids loaded above:
-SELECT pg_catalog.setval('public.users_id_seq',
-                         (SELECT MAX(id)+1 FROM Users),
-                         false);
+SELECT pg_catalog.setval(
+    pg_get_serial_sequence('users','id'),
+    (SELECT COALESCE(MAX(id),0) FROM users) + 1,
+    false
+);
 
+\echo 'Loading products...'
 \COPY Products FROM 'Products.csv' WITH DELIMITER ',' NULL '' CSV
-SELECT pg_catalog.setval('public.products_id_seq',
-                         (SELECT MAX(id)+1 FROM Products),
-                         false);
+SELECT pg_catalog.setval(
+    pg_get_serial_sequence('products','id'),
+    (SELECT COALESCE(MAX(id),0) FROM products) + 1,
+    false
+);
 
+
+\echo 'Loading inventory...'
+\COPY Inventory FROM 'Inventory.csv' WITH DELIMITER ',' NULL '' CSV
+
+
+\echo 'Loading carts...'
+\COPY Cart FROM 'Carts.csv' WITH DELIMITER ',' NULL '' CSV
+
+
+\echo 'Loading purchases...'
 \COPY Purchases FROM 'Purchases.csv' WITH DELIMITER ',' NULL '' CSV
-SELECT pg_catalog.setval('public.purchases_id_seq',
-                         (SELECT MAX(id)+1 FROM Purchases),
-                         false);
+SELECT pg_catalog.setval(
+    pg_get_serial_sequence('purchases','purchase_id'),
+    (SELECT COALESCE(MAX(purchase_id),0) FROM purchases) + 1,
+    false
+);
+
+\echo 'Loading Ledger from Order_items.csv...'
+\COPY Ledger FROM 'Order_items.csv' WITH DELIMITER ',' NULL '' CSV
+
+\echo 'All CSV imports finished.'
