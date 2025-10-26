@@ -2,28 +2,41 @@ from flask import current_app as app
 
 
 class Product:
-    def __init__(self, id, name, price, available):
+    def __init__(self, id, name, description, price, category):
         self.id = id
         self.name = name
+        self.description = description
         self.price = price
-        self.available = available
+        self.category = category
 
     @staticmethod
-    def get(id):
+    def get_with_id(id):
         rows = app.db.execute('''
-SELECT id, name, price, available
-FROM Products
-WHERE id = :id
-''',
-                              id=id)
+            SELECT *
+            FROM Products
+            WHERE id = :id
+            ''',
+        id=id
+        )
         return Product(*(rows[0])) if rows is not None else None
 
     @staticmethod
-    def get_all(available=True):
+    def get_all():
         rows = app.db.execute('''
-SELECT id, name, price, available
-FROM Products
-WHERE available = :available
-''',
-                              available=available)
+            SELECT *
+            FROM Products
+            ''',
+        ) 
+        return [Product(*row) for row in rows]
+
+    @staticmethod 
+    def get_k_most_expensive(k: int):
+        rows = app.db.execute('''
+            SELECT * 
+            FROM Products
+            ORDER BY price DESC
+            LIMIT :k
+            ''', 
+        k=k
+        )
         return [Product(*row) for row in rows]
