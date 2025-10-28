@@ -5,9 +5,7 @@ bp = Blueprint('sellers', __name__, url_prefix='/seller')
 
 @bp.route('/<int:seller_id>/inventory', methods=['GET'])
 def seller_inventory_json(seller_id):
-    # local import to avoid circular import / startup import errors
     from app.models.inventory import InventoryItem
-
     items = InventoryItem.get_for_seller(seller_id)
     return jsonify({
         "seller_id": seller_id,
@@ -16,8 +14,39 @@ def seller_inventory_json(seller_id):
 
 @bp.route('/<int:seller_id>/inventory/view', methods=['GET'])
 def seller_inventory_view(seller_id):
-    # local import here too
+    # local imports to avoid circular import issues
     from app.models.inventory import InventoryItem
 
+    # 1) fetch seller info from DB
+    seller_row = current_app.db.execute(
+        "SELECT id, email, password, firstname, lastname FROM users WHERE id = :id",
+        id=seller_id
+    )
+    if not seller_row:
+        # no such seller/user
+        abort(404)
+
+    # seller_row[0] may be a RowProxy/tuple/dict depending on DB.execute return;
+    r = seller_row[0]
+    # try dictionary-like access first, fallback to tuple indexing
+    try:
+        seller = {
+            "id": r["id"],
+            "email": r["email"],
+            "firstname": r["firstname"],
+            "lastname": r["lastname"],
+        }
+    except Exception:
+        # tuple layout: id, email, password, firstname, lastname
+        seller = {
+            "id": r[0],
+            "email": r[1],
+            "firstname": r[3],
+            "lastname": r[4],
+        }
+
+    # 2) fetch inventory entries
     entries = InventoryItem.get_for_seller(seller_id)
-    return render_template('inventory.html', seller_id=seller_id, entries=entries)
+
+    # 3) pass seller object into template
+    return render_template('inventory.html', seller=seller, seller_id=seller_id, entries=entries)
