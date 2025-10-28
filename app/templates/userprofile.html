@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Welcome, {{ user.firstname }} {{ user.lastname }}!</h1>
+  <h3>Email: {{ user.email }}</h3>
+  <br><br>
+  <h2>Purchase History</h2>
+  
+  {% if purchases %}
+    <div class="table-responsive mt-4">
+      <table class="table table-hover">
+        <thead class="thead-light">
+          <tr>
+            <th>Order #</th>
+            <th>Date</th>
+            <th>Address</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in purchases %}
+            <tr class="purchase-row" data-purchase-id="{{ p.purchase_id }}">
+              <td>#{{ p.purchase_id }}</td>
+              <td>{{ p.date.strftime('%Y-%m-%d') }}</td>
+              <td>{{ p.address }}</td>
+              <td>${{ "%.2f"|format(p.totalprice) }}</td>
+              <td>
+                <button class="btn btn-link dropdown-toggle p-0" type="button">
+                  <i class="arrow down"></i>
+                </button>
+              </td>
+            </tr>
+            <tr class="purchase-details" id="details-{{ p.purchase_id }}" style="display: none;">
+              <td colspan="5">
+                <div class="px-4 py-3 bg-light">
+                  <table class="table table-sm mb-0">
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in p.items %}
+                        <tr>
+                          <td>{{ item.product_name }}</td>
+                          <td>{{ item.quantity }}</td>
+                          <td>${{ "%.2f"|format(item.price) }}</td>
+                          <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <style>
+      .arrow {
+        border: solid #6c757d;
+        border-width: 0 2px 2px 0;
+        display: inline-block;
+        padding: 3px;
+        transition: transform 0.2s;
+      }
+      
+      .down {
+        transform: rotate(45deg);
+        -webkit-transform: rotate(45deg);
+      }
+      
+      .up {
+        transform: rotate(-135deg);
+        -webkit-transform: rotate(-135deg);
+      }
+
+      .purchase-row {
+        cursor: pointer;
+      }
+
+      .purchase-row:hover {
+        background-color: #f8f9fa;
+      }
+
+      .purchase-details {
+        background-color: #f8f9fa;
+      }
+    </style>
+
+    <script>
+      $(document).ready(function() {
+        $('.purchase-row').click(function() {
+          const purchaseId = $(this).data('purchase-id');
+          const detailsRow = $(`#details-${purchaseId}`);
+          const arrow = $(this).find('.arrow');
+          
+          detailsRow.toggle();
+          arrow.toggleClass('down up');
+        });
+      });
+    </script>
+  {% else %}
+    <p>No purchases yet.</p>
+  {% endif %}
+{% endblock %}
