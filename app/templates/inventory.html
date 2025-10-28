@@ -1,0 +1,31 @@
+<!-- templates/sellers/inventory.html -->
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Inventory for seller: {{ seller.firstname or seller[1] or 'seller' }} (id={{ seller.id or seller[0] }})</h1>
+
+  {% if entries %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Product ID</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in entries %}
+          <tr>
+            <td>{{ e.product_id }}</td>
+            <td>{{ e.product_name or e.product.name }}</td>
+            <td>{{ e.product_price }}</td>
+            <td>{{ e.quantity }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No inventory items found for this seller.</p>
+  {% endif %}
+{% endblock %}

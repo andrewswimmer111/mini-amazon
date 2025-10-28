@@ -26,6 +26,35 @@
 
 <br><br>
 
+<br><br>
+<h2>View a Seller’s Inventory</h2>
+
+<form id="seller-form" onsubmit="goToSeller(event)">
+  <label for="seller-id">Enter Seller ID:</label>
+  <input 
+    type="number" 
+    id="seller-id" 
+    name="seller_id" 
+    min="0" 
+    placeholder="e.g. 0"
+    required
+  >
+  <button type="submit">View Inventory</button>
+</form>
+
+<script>
+  function goToSeller(event) {
+    event.preventDefault();
+    const id = document.getElementById('seller-id').value.trim();
+    if (id !== '') {
+      // redirect to the seller inventory view
+      window.location.href = `/seller/${id}/inventory/view`;
+    }
+  }
+</script>
+
+<br><br>
+
 <table class='table table-hover table-bordered container'>
   <thead class="thead-dark">
     <tr>
