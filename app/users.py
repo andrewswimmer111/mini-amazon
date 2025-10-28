@@ -4,6 +4,7 @@ from flask_login import login_user, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from .models.purchase import Purchase
 
 from .models.user import User
 
@@ -72,3 +73,14 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('index.index'))
+
+
+@bp.route('/profile')
+def profile():
+    # Only logged-in users can see this page
+    if current_user.is_authenticated:
+        purchases = Purchase.get_all_purchanditems_for_user(current_user.id)
+    else:
+        flash("Please log in to view your profile.", "warning")
+        return redirect(url_for('users.login'))  
+    return render_template('userprofile.html', user=current_user, purchases=purchases)
