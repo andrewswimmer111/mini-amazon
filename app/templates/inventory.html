@@ -19,7 +19,7 @@
           <tr>
             <td>{{ e.product_id }}</td>
             <td>{{ e.product_name or e.product.name }}</td>
-            <td>{{ e.product_price }}</td>
+            <td>{{ e.product.price }}</td>
             <td>{{ e.quantity }}</td>
           </tr>
         {% endfor %}
