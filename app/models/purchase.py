@@ -133,21 +133,60 @@ class Purchase:
             if not purchase_rows:
                 return None
             
-            purchase = Purchase(*purchase_rows[0])
-            
-            # Copy cart items to ledger, also with fulfillment_status=1
+            row = purchase_rows[0]
+            purchase_id = row[0]
+            buyer = row[1]
+            date = row[2]
+            address_db = row[3]
+            fulfillment_status = row[4]
+
+            items = []
+            totalprice = 0.0
+
             for seller_id, product_id, quantity in cart_items:
+                prod_rows = app.db.execute('''
+                    SELECT id, name, price, category
+                    FROM Products
+                    WHERE id = :pid
+                ''', pid=product_id)
+                if prod_rows:
+                    prod = prod_rows[0]
+                    prod_name = prod[1]
+                    prod_price = float(prod[2]) if prod[2] is not None else 0.0
+                    prod_category = prod[3]
+                else:
+                    prod_name = None
+                    prod_price = 0.0
+                    prod_category = None
+
+                item = {
+                    'product_id': product_id,
+                    'product_name': prod_name,
+                    'price': prod_price,
+                    'category': prod_category,
+                    'quantity': int(quantity),
+                    'seller_id': seller_id,
+                    'item_fulfillment_status': 1,
+                }
+                items.append(item)
+                totalprice += prod_price * int(quantity)
+
                 app.db.execute('''
                     INSERT INTO Ledger
                     (purchase_id, seller_id, product_id, quantity, fulfillment_status)
                     VALUES (:pid, :sid, :prod_id, :qty, 1)
-                ''', pid=purchase.purchase_id, sid=seller_id,
+                ''', pid=purchase_id, sid=seller_id,
                      prod_id=product_id, qty=quantity)
-            
-            # Clear the cart
+
             app.db.execute('''
                 DELETE FROM Cart
                 WHERE account_id = :uid
             ''', uid=buyer_id)
-            
-            return purchase
+
+            return Purchase(purchase_id=purchase_id,
+                            address=address_db,
+                            date=date,
+                            buyer_id=buyer,
+                            fulfillment_status=fulfillment_status,
+                            items=items,
+                            totalprice=totalprice)
