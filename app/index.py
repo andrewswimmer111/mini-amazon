@@ -17,12 +17,33 @@ def test():
 @bp.route('/')
 def index():
 
-    top_k = request.args.get('top_k', type=int)
-    products = Product.get_k_most_expensive(top_k) if top_k else Product.get_all()
+    # Settings
+    PER_PAGE = 5
+
+    # Params
+    category = request.args.get('category', type=str) or None
+    keyword = request.args.get('keyword', type=str) or None
+    minPrice = request.args.get('minPrice', type=float) or None
+    maxPrice = request.args.get('maxPrice', type=float) or None
+
+    sortBy = request.args.get('sortBy', "price", type=str)
+    sortDir = request.args.get('sortDir', "asc", type=str)
+
+    limit = request.args.get('limit', type=int) or None
+
+    products = Product.get_with_filters(category, keyword, minPrice, maxPrice, sortBy, sortDir, limit)
     total_products = len(Product.get_all())
 
+    categories = Product.get_categories()
 
     return render_template('index.html',
-                           avail_products=products,
-                           k=top_k,
-                           n=total_products)
+                            avail_products=products,
+                            n=total_products,
+                            categories=categories,
+                            selected_category=category,
+                            keyword=keyword,
+                            minPrice=minPrice,
+                            maxPrice=maxPrice,
+                            sortBy=sortBy,
+                            sortDir=sortDir,
+                            limit=limit)

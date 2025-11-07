@@ -10,22 +10,73 @@
   <a href="{{ url_for('cart.view_cart') }}" class="btn btn-primary mb-3">View Cart</a>
 {% endif %}
 
-<div> Filter for the kth most expensive items </div>
+
+<div> Filters </div>
 <form method="get" action="{{ url_for('index.index') }}">
+
+  <label for="category">Category:</label>
+  <select id="category" name="category">
+    <option value="" {% if not selected_category %}selected{% endif %}>All</option>
+    {% for c in categories %}
+      <option value="{{ c }}" {% if selected_category == c %}selected{% endif %}>{{ c }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="keyword">Keyword:</label>
+  <input 
+    type="text" 
+    id="keyword" 
+    name="keyword" 
+    placeholder="Search"
+    value="{{ keyword or '' }}"
+  >
+
+  <label for="minPrice">Min Price:</label>
   <input 
     type="number" 
-    name="top_k" 
-    value="{{ k or '' }}" 
-    min=0 
-    max="{{ n }}" 
+    id="minPrice" 
+    name="minPrice" 
+    step="0.01"
+    min="0"
+    value="{{ minPrice or '' }}"
+  >
+
+  <label for="maxPrice">Max Price:</label>
+  <input 
+    type="number" 
+    id="maxPrice" 
+    name="maxPrice" 
+    step="0.01"
+    min="0"
+    value="{{ maxPrice or '' }}"
+  >
+
+  <label for="sortBy">Sort by:</label>
+  <select id="sortBy" name="sortBy">
+    <option value="price" {% if sortBy == 'price' %}selected{% endif %}>Price</option>
+    <option value="name" {% if sortBy == 'name' %}selected{% endif %}>Name</option>
+  </select>
+
+  <select id="sortDir" name="sortDir">
+    <option value="asc" {% if sortDir == 'asc' %}selected{% endif %}>Ascending</option>
+    <option value="desc" {% if sortDir == 'desc' %}selected{% endif %}>Descending</option>
+  </select>
+
+  <label for="limit">Limit:</label>
+  <input
+    type="number"
+    id="limit"
+    name="limit"
+    value="{{ limit or '' }}"
+    min="1"
+    max="{{ n }}"
     step="1"
   >
+
   <button type="submit">Apply</button>
   <button type="button" id="reset-btn" data-url="{{ url_for('index.index') }}">
     Reset
   </button>
-
-
 </form>
 
 <br><br>
