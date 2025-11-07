@@ -1,0 +1,11 @@
+{# Helper macro to build URLs preserving filters (Jinja 2.x compatible) #}
+{% macro url_with_page(page_num) -%}
+  {{ url_for('index.index',
+             page=page_num,
+             category=request.args.get('category'),
+             keyword=request.args.get('keyword'),
+             minPrice=request.args.get('minPrice'),
+             maxPrice=request.args.get('maxPrice'),
+             sortBy=request.args.get('sortBy'),
+             sortDir=request.args.get('sortDir')) }}
+{%- endmacro %}

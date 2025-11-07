@@ -1,0 +1,122 @@
+{% import '_macros.html' as macros %}
+
+<div id="products-container">
+  <table class='table table-hover table-bordered container'>
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">Product ID</th>
+        <th scope="col">Product Name</th>
+        <th scope="col">Product Description</th>
+        <th scope="col">Product Category</th>
+        <th scope="col">Price</th>
+        <th scope="col">Add</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in avail_products%}
+        <tr>
+          <th scope="row">{{product.id}}</th>
+          <td>{{product.name}}</td>
+          <td>{{product.description}}</td>
+          <td>{{product.category}}</td>
+          <td>{{product.price}}</td>
+          <td>
+            {% if current_user.is_authenticated %}
+              <form method="post" action="{{ url_for('cart.add_to_cart') }}" style="display:inline-block">
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="number" name="quantity" value="1" min="1" style="width:70px" aria-label="quantity">
+                <button type="submit" class="btn btn-sm btn-success">Add</button>
+              </form>
+            {% else %}
+              <a href="{{ url_for('users.login') }}">Log in to add</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {# --- Pagination controls --- #}
+
+  {% if pages is defined and pages > 1 %}
+    <nav aria-label="Product pages">
+      <ul class="pagination">
+
+        {# Previous #}
+        <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+          {% if page > 1 %}
+            <a class="page-link"
+              hx-get="{{ macros.url_with_page(page-1) }}"
+              hx-target="#products-container"
+              hx-swap="outerHTML">
+              Previous
+            </a>
+          {% else %}
+            <span class="page-link">Previous</span>
+          {% endif %}
+        </li>
+
+        {# Page window (adjust window size as desired) #}
+        {% set start = page - 2 if page - 2 > 1 else 1 %}
+        {% set end = page + 2 if page + 2 < pages else pages %}
+
+        {% if start > 1 %}
+          <li class="page-item">
+            <a class="page-link"
+              hx-get="{{ macros.url_with_page(1) }}"
+              hx-target="#products-container"
+              hx-swap="outerHTML">
+              1
+            </a>
+          </li>
+          {% if start > 2 %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+          {% endif %}
+        {% endif %}
+
+        {% for pnum in range(start, end + 1) %}
+          <li class="page-item {% if pnum == page %}active{% endif %}">
+            <a class="page-link"
+              hx-get="{{ macros.url_with_page(pnum) }}"
+              hx-target="#products-container"
+              hx-swap="outerHTML">
+              {{ pnum }}
+            </a>
+          </li>
+        {% endfor %}
+
+        {% if end < pages %}
+          {% if end < pages - 1 %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+          {% endif %}
+          <li class="page-item">
+            <a class="page-link"
+              hx-get="{{ macros.url_with_page(pages) }}"
+              hx-target="#products-container"
+              hx-swap="outerHTML">
+              {{ pages }}
+            </a>
+          </li>
+        {% endif %}
+
+        {# Next #}
+        <li class="page-item {% if page >= pages %}disabled{% endif %}">
+          {% if page < pages %}
+            <a class="page-link"
+              hx-get="{{ macros.url_with_page(page+1) }}"
+              hx-target="#products-container"
+              hx-swap="outerHTML">
+              Next
+            </a>
+          {% else %}
+            <span class="page-link">Next</span>
+          {% endif %}
+        </li>
+      </ul>
+
+      <div class="mt-2">
+        Showing page {{ page }} of {{ pages }} — {{ total }} results
+      </div>
+    </nav>
+  {% endif %}
+</div>

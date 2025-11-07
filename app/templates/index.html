@@ -3,15 +3,28 @@
 {% block content %}
 
 <br><br>
-
-<h2>Products for sale:</h2>
-
 {% if current_user.is_authenticated %}
   <a href="{{ url_for('cart.view_cart') }}" class="btn btn-primary mb-3">View Cart</a>
 {% endif %}
 
+<h2>View a Seller’s Inventory</h2>
+<form id="seller-form" onsubmit="goToSeller(event)">
+  <label for="seller-id">Enter Seller ID:</label>
+  <input 
+    type="number" 
+    id="seller-id" 
+    name="seller_id" 
+    min="0" 
+    placeholder="e.g. 0"
+    required
+  >
+  <button type="submit">View Inventory</button>
+</form>
 
-<div> Filters </div>
+<br><br>
+
+<h2>Products for sale:</h2>
+
 <form method="get" action="{{ url_for('index.index') }}">
 
   <label for="category">Category:</label>
@@ -62,42 +75,21 @@
     <option value="desc" {% if sortDir == 'desc' %}selected{% endif %}>Descending</option>
   </select>
 
-  <label for="limit">Limit:</label>
-  <input
-    type="number"
-    id="limit"
-    name="limit"
-    value="{{ limit or '' }}"
-    min="1"
-    max="{{ n }}"
-    step="1"
-  >
-
   <button type="submit">Apply</button>
   <button type="button" id="reset-btn" data-url="{{ url_for('index.index') }}">
     Reset
   </button>
 </form>
 
-<br><br>
+{% include '_products_fragment.html' %}
 
 <br><br>
-<h2>View a Seller’s Inventory</h2>
-
-<form id="seller-form" onsubmit="goToSeller(event)">
-  <label for="seller-id">Enter Seller ID:</label>
-  <input 
-    type="number" 
-    id="seller-id" 
-    name="seller_id" 
-    min="0" 
-    placeholder="e.g. 0"
-    required
-  >
-  <button type="submit">View Inventory</button>
-</form>
 
 <script>
+  document.getElementById('reset-btn').addEventListener('click', (e) => {
+    window.location.href = e.target.dataset.url;
+  });
+
   function goToSeller(event) {
     event.preventDefault();
     const id = document.getElementById('seller-id').value.trim();
@@ -106,49 +98,6 @@
       window.location.href = `/seller/${id}/inventory/view`;
     }
   }
-</script>
-
-<br><br>
-
-<table class='table table-hover table-bordered container'>
-  <thead class="thead-dark">
-    <tr>
-      <th scope="col">Product ID</th>
-      <th scope="col">Product Name</th>
-      <th scope="col">Product Description</th>
-      <th scope="col">Product Category</th>
-      <th scope="col">Price</th>
-      <th scope="col">Add</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for product in avail_products%}
-      <tr>
-        <th scope="row">{{product.id}}</th>
-        <td>{{product.name}}</td>
-        <td>{{product.description}}</td>
-        <td>{{product.category}}</td>
-        <td>{{product.price}}</td>
-        <td>
-          {% if current_user.is_authenticated %}
-            <form method="post" action="{{ url_for('cart.add_to_cart') }}" style="display:inline-block">
-              <input type="hidden" name="product_id" value="{{ product.id }}">
-              <input type="number" name="quantity" value="1" min="1" style="width:70px" aria-label="quantity">
-              <button type="submit" class="btn btn-sm btn-success">Add</button>
-            </form>
-          {% else %}
-            <a href="{{ url_for('users.login') }}">Log in to add</a>
-          {% endif %}
-        </td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-<script>
-  document.getElementById('reset-btn').addEventListener('click', (e) => {
-    window.location.href = e.target.dataset.url;
-  });
 </script>
 
 {% endblock %}

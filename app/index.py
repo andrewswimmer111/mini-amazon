@@ -1,3 +1,5 @@
+from math import ceil
+
 from flask import render_template
 from flask_login import current_user
 import datetime
@@ -18,7 +20,7 @@ def test():
 def index():
 
     # Settings
-    PER_PAGE = 5
+    PER_PAGE = 3
 
     # Params
     category = request.args.get('category', type=str) or None
@@ -29,21 +31,28 @@ def index():
     sortBy = request.args.get('sortBy', "price", type=str)
     sortDir = request.args.get('sortDir', "asc", type=str)
 
-    limit = request.args.get('limit', type=int) or None
+    # Pagination
+    page = request.args.get('page', 1, type=int)
+    if page < 1:
+        page = 1
+    
+    offset = (page - 1) * PER_PAGE
+    total = Product.count_with_filters(category=category, keyword=keyword, minPrice=minPrice, maxPrice=maxPrice)
+    pages = ceil(total / PER_PAGE)
 
-    products = Product.get_with_filters(category, keyword, minPrice, maxPrice, sortBy, sortDir, limit)
-    total_products = len(Product.get_all())
-
+    # Calculate products and categories
+    products = Product.get_with_filters(category, keyword, minPrice, maxPrice, sortBy, sortDir, PER_PAGE, offset)
     categories = Product.get_categories()
 
-    return render_template('index.html',
-                            avail_products=products,
-                            n=total_products,
-                            categories=categories,
-                            selected_category=category,
-                            keyword=keyword,
-                            minPrice=minPrice,
-                            maxPrice=maxPrice,
-                            sortBy=sortBy,
-                            sortDir=sortDir,
-                            limit=limit)
+
+    if request.headers.get('HX-Request'):  # HTMX request
+        return render_template('_products_fragment.html', 
+                               avail_products=products,
+                               page=page, pages=pages, total=total)
+    else:
+        return render_template('index.html', 
+                               avail_products=products, page=page,
+                               pages=pages, total=total,
+                               categories=categories, selected_category=category,
+                               keyword=keyword, minPrice=minPrice, maxPrice=maxPrice,
+                               sortBy=sortBy, sortDir=sortDir)
