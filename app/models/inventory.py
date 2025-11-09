@@ -58,3 +58,21 @@ class InventoryItem:
                     ''',
                 product_id=product_id)
         return [InventoryItem(*row) for row in rows]
+    
+
+    @staticmethod
+    def add_or_update(user_id, product_id, quantity):
+        try:
+            rows = app.db.execute('''
+                INSERT INTO Inventory (seller_id, product_id, quantity)
+                VALUES (:seller_id, :product_id, :quantity)
+                ON CONFLICT (seller_id, product_id)
+                DO UPDATE SET quantity = Inventory.quantity + EXCLUDED.quantity
+                RETURNING id
+            ''',
+            seller_id=user_id, product_id=product_id, quantity=quantity)
+            id = rows[0][0]
+            return InventoryItem.get_with_id(id)
+        except Exception as e:
+            print("Error adding/updating inventory:", e)
+            return None

@@ -2,6 +2,26 @@
 {% block content %}
   <h1>Welcome, {{ user.firstname }} {{ user.lastname }}!</h1>
   <h3>Email: {{ user.email }}</h3>
+
+  <!-- sorry I started this but realized I dont need to do it, someone else can finish -->
+  <h2> Item inventory </h2>
+  {% if selling_products %}
+    <div>
+        <table class='table table-hover table-bordered container'>
+          <thead>
+            <tr>
+              <th> Product Id </th>
+              <th> Product Name </th>
+              <th> Product Price </th>
+            </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+    </div>
+  {% endif %}
+
   <br><br>
   <h2>Purchase History</h2>
   

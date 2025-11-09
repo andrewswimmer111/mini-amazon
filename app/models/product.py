@@ -29,6 +29,41 @@ class Product:
         return [Product(*row) for row in rows]
     
 
+    @staticmethod
+    def create(name, description, price, category):
+        try:
+            rows = app.db.execute('''
+                INSERT INTO PRODUCTS(name, description, price, category)
+                VALUES (:name, :description, :price, :category)
+                RETURNING id
+                ''',
+                name=name, description=description, price=price, category=category)
+            id = rows[0][0]
+            return Product.get_with_id(id)
+        except Exception as e:
+            print(str(e))
+            return None
+        
+
+    def update(product_id, name, description, price, category):
+        rows = app.db.execute('''
+            UPDATE Products
+            SET name = :name,
+                description = :description,
+                price = :price,
+                category = :category
+            WHERE id = :product_id
+            RETURNING id
+        ''',
+        name=name, description=description, price=price, category=category, product_id=product_id)
+
+        if not rows:
+            return None
+
+        id = rows[0][0]
+        # build and return a Product object (match the shape your app uses)
+        return Product.get_with_id(id)
+
     # Filters below
     @staticmethod
     def _build_filter_sql(category=None, keyword=None, minPrice=None, maxPrice=None):

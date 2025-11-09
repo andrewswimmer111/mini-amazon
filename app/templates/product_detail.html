@@ -9,6 +9,7 @@
     <div> Description: {{ product.description }}</div>
     <div> Price: {{product.price}} </div>
 </div>
+<a href="{{ url_for('items.edit_product', product_id=product.id) }}" class="btn btn-outline-primary">Edit Product</a>
 
 <br><br>
 

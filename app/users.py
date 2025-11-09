@@ -4,10 +4,10 @@ from flask_login import login_user, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+
 from .models.purchase import Purchase
-
 from .models.user import User
-
+from .models.inventory import InventoryItem
 
 from flask import Blueprint
 bp = Blueprint('users', __name__)
@@ -80,7 +80,11 @@ def profile():
     # Only logged-in users can see this page
     if current_user.is_authenticated:
         purchases = Purchase.get_all_purchanditems_for_user(current_user.id)
+        selling_products = InventoryItem.get_for_seller(current_user.id)
     else:
         flash("Please log in to view your profile.", "warning")
         return redirect(url_for('users.login'))  
-    return render_template('userprofile.html', user=current_user, purchases=purchases)
+    return render_template('userprofile.html', 
+                           user=current_user, purchases=purchases,
+                           selling_products=selling_products
+                           )
