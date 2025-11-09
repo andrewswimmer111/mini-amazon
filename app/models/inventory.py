@@ -1,7 +1,5 @@
 # app/models/inventory.py
-from flask import current_app
-
-
+from flask import current_app as app
 
 
 class InventoryItem:
@@ -47,5 +45,16 @@ class InventoryItem:
         LEFT JOIN products p ON p.id = i.product_id
         WHERE i.seller_id = :seller_id
         """
-        rows = current_app.db.execute(sql, seller_id=seller_id)
+        rows = app.db.execute(sql, seller_id=seller_id)
         return [cls.from_row(r) for r in rows]
+    
+
+    @staticmethod
+    def get_sellers_from_product(product_id):
+        rows = app.db.execute('''
+                    SELECT * 
+                    FROM Inventory i
+                    WHERE i.product_id = :product_id
+                    ''',
+                product_id=product_id)
+        return [InventoryItem(*row) for row in rows]

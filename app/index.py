@@ -5,7 +5,6 @@ from flask_login import current_user
 import datetime
 
 from .models.product import Product
-from .models.purchase import Purchase
 
 from flask import Blueprint, request
 bp = Blueprint('index', __name__)
@@ -20,7 +19,7 @@ def test():
 def index():
 
     # Settings
-    PER_PAGE = 3
+    PER_PAGE = 5
 
     # Params
     category = request.args.get('category', type=str) or None

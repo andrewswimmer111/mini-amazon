@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div>
+    <h3> Product details </h3>
+    <div> ID: {{ product.id }} </div>
+    <div> Name: {{ product.name }}</div>
+    <div> Description: {{ product.description }}</div>
+    <div> Price: {{product.price}} </div>
+</div>
+
+<br><br>
+
+<div>
+  <h3>Sellers</h3>
+
+  {% if inventory %}
+    {% for i in inventory %}
+      <div>ID: {{ i.seller_id }}</div>
+      <div>Quantity: {{ i.quantity }}</div>
+      <hr>
+    {% endfor %}
+  {% else %}
+    <div>No people selling this product</div>
+  {% endif %}
+</div>
+
+{% endblock %}
