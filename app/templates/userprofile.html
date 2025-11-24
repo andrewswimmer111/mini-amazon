@@ -34,6 +34,7 @@
             <th>Date</th>
             <th>Address</th>
             <th>Total</th>
+            <th>Order Status</th>
             <th></th>
           </tr>
         </thead>
@@ -45,13 +46,20 @@
               <td>{{ p.address }}</td>
               <td>${{ "%.2f"|format(p.totalprice) }}</td>
               <td>
+                {% if p.fulfillment_status == 1 %}
+                  <span class="badge badge-success">Fulfilled</span>
+                {% else %}
+                  <span class="badge badge-warning">Pending</span>
+                {% endif %}
+              </td>
+              <td>
                 <button class="btn btn-link dropdown-toggle p-0" type="button">
                   <i class="arrow down"></i>
                 </button>
               </td>
             </tr>
             <tr class="purchase-details" id="details-{{ p.purchase_id }}" style="display: none;">
-              <td colspan="5">
+              <td colspan="6">
                 <div class="px-4 py-3 bg-light">
                   <table class="table table-sm mb-0">
                     <thead>
@@ -60,6 +68,7 @@
                         <th>Quantity</th>
                         <th>Price</th>
                         <th>Subtotal</th>
+                        <th>Item Status</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -69,6 +78,13 @@
                           <td>{{ item.quantity }}</td>
                           <td>${{ "%.2f"|format(item.price) }}</td>
                           <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                          <td>
+                            {% if item.item_fulfillment_status == 1 %}
+                              <span class="badge badge-success">Fulfilled</span>
+                            {% else %}
+                              <span class="badge badge-warning">Pending</span>
+                            {% endif %}
+                          </td>
                         </tr>
                       {% endfor %}
                     </tbody>
