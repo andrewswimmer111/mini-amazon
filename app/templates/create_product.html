@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if edit %}
+  <h2>Edit Product</h2>
+{% else %}
+  <h2>Create Product</h2>
+{% endif %}
+
+<form method="post" action="" novalidate>
+  {{ form.hidden_tag() }}
+
+  <p>
+    {{ form.name.label }}<br>
+    {{ form.name(class_="form-control", size=40) }}<br>
+    {% for error in form.name.errors %}
+      <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+
+  <p>
+    {{ form.description.label }}<br>
+    {{ form.description(rows=5, cols=60, class_="form-control") }}<br>
+    {% for error in form.description.errors %}
+      <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+
+  <p>
+    {{ form.price.label }}<br>
+    {{ form.price(step="0.01", class_="form-control") }}<br>
+    {% for error in form.price.errors %}
+      <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+
+  <p>
+    {{ form.category.label }}<br>
+    {{ form.category(class_="form-control") }}<br>
+    {% for error in form.category.errors %}
+      <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+
+  <p>
+    {% if edit %}
+      {{ form.submit(class_="btn btn-primary", value="Save Changes") }}
+      <a class="btn btn-secondary" href="{{ url_for('items.view_product', product_id=request.view_args.product_id) }}">Cancel</a>
+    {% else %}
+      {{ form.submit(class_="btn btn-success") }}
+      <a class="btn btn-secondary" href="{{ url_for('index.index') }}">Cancel</a>
+    {% endif %}
+  </p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul>
+      {% for category, message in messages %}
+        <li class="flash-{{ category }}">{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+</form>
+{% endblock %}
