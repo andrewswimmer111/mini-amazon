@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 
 from .models.cart import Cart
 from .models.purchase import Purchase
+from .models.user import User
 
 bp = Blueprint('cart', __name__)
 
@@ -14,7 +15,8 @@ def view_cart():
     items = Cart.format_cart_items(uid)
     total = Cart.get_cart_total(uid)
     count = Cart.get_cart_item_count(uid)
-    return render_template('cart.html', items=items, total=total, count=count)
+    balance = User.get_balance(uid)
+    return render_template('cart.html', items=items, total=total, count=count, balance=balance)
 
 
 @bp.route('/cart/add', methods=['POST'])
@@ -109,8 +111,12 @@ def purchase():
     print(f"[purchase] Creating purchase for user {current_user.id} with address: {address}")
     purchase = Purchase.create_from_cart(current_user.id, address)
     
-    if not purchase:
-        flash('Unable to create purchase - cart may be empty')
+    if purchase is None:
+        flash('Unable to create purchase - cart may be empty or insufficient balance', 'error')
+        return redirect(url_for('cart.view_cart'))
+    
+    if purchase == 'insufficient_balance':
+        flash('Insufficient balance to complete purchase. Please add funds to your account.', 'error')
         return redirect(url_for('cart.view_cart'))
 
     flash(f'Purchase completed! Your order ID is {purchase.purchase_id}')

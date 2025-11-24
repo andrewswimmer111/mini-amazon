@@ -67,3 +67,16 @@ WHERE id = :id
 """,
                               id=id)
         return User(*(rows[0])) if rows else None
+
+    @staticmethod
+    def get_balance(user_id):
+        """Get the balance for a user."""
+        rows = app.db.execute("""
+SELECT balance
+FROM Users
+WHERE id = :id
+""",
+                              id=user_id)
+        if not rows:
+            return None
+        return float(rows[0][0]) if rows[0][0] is not None else 0.0

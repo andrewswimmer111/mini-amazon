@@ -7,6 +7,10 @@
       <a href="{{ url_for('index.index') }}" class="btn btn-secondary">Return to Home</a>
     </div>
 
+    <div class="alert alert-info mb-3">
+      <strong>Available Balance:</strong> ${{ '%.2f' | format(balance) }}
+    </div>
+
     {% if not items %}
       <div class="alert alert-info">Your cart is empty.</div>
     {% else %}
@@ -62,10 +66,10 @@
       </div>
     {% endif %}
 
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-info mt-4">{{ message }}</div>
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else 'info' }} mt-4">{{ message }}</div>
         {% endfor %}
       {% endif %}
     {% endwith %}

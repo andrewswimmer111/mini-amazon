@@ -18,8 +18,9 @@ def test():
 def index():
 
     top_k = request.args.get('top_k', type=int)
-    products = Product.get_k_most_expensive(top_k) if top_k else Product.get_all()
-    total_products = len(Product.get_all())
+    # Only show products available in inventory
+    products = Product.get_k_most_expensive_available(top_k) if top_k else Product.get_all_available()
+    total_products = len(Product.get_all_available())
 
 
     return render_template('index.html',

@@ -106,10 +106,12 @@ class Purchase:
     def create_from_cart(buyer_id, address):
         """Create a new purchase from the user's cart.
         
-        1. Create purchase record
-        2. Copy cart items to ledger
-        3. Clear the cart
-        Returns the new Purchase object or None if cart was empty.
+        1. Check buyer balance
+        2. Create purchase record
+        3. Copy cart items to ledger
+        4. Update buyer and seller balances
+        5. Clear the cart
+        Returns the new Purchase object, 'insufficient_balance', or None if cart was empty.
         """
         # Start transaction
         with app.db.engine.begin() as conn:
@@ -123,25 +125,10 @@ class Purchase:
             if not cart_items:
                 return None
 
-            # Create the purchase record with fulfillment_status=1
-            purchase_rows = app.db.execute('''
-                INSERT INTO Purchases (buyer_id, address, fulfillment_status)
-                VALUES (:uid, :addr, 1)
-                RETURNING purchase_id, buyer_id, date, address, fulfillment_status
-            ''', uid=buyer_id, addr=address)
-            
-            if not purchase_rows:
-                return None
-            
-            row = purchase_rows[0]
-            purchase_id = row[0]
-            buyer = row[1]
-            date = row[2]
-            address_db = row[3]
-            fulfillment_status = row[4]
-
+            # Calculate total price first
             items = []
             totalprice = 0.0
+            seller_totals = {}  # Track total amount per seller
 
             for seller_id, product_id, quantity in cart_items:
                 prod_rows = app.db.execute('''
@@ -169,8 +156,49 @@ class Purchase:
                     'item_fulfillment_status': 1,
                 }
                 items.append(item)
-                totalprice += prod_price * int(quantity)
+                item_total = prod_price * int(quantity)
+                totalprice += item_total
+                
+                # Track seller totals
+                if seller_id not in seller_totals:
+                    seller_totals[seller_id] = 0.0
+                seller_totals[seller_id] += item_total
 
+            # Check buyer balance
+            buyer_balance_rows = app.db.execute('''
+                SELECT balance
+                FROM Users
+                WHERE id = :uid
+            ''', uid=buyer_id)
+            
+            if not buyer_balance_rows:
+                return None
+            
+            buyer_balance = float(buyer_balance_rows[0][0]) if buyer_balance_rows[0][0] is not None else 0.0
+            
+            # Check if balance is sufficient
+            if buyer_balance < totalprice:
+                return 'insufficient_balance'
+
+            # Create the purchase record with fulfillment_status=1
+            purchase_rows = app.db.execute('''
+                INSERT INTO Purchases (buyer_id, address, fulfillment_status)
+                VALUES (:uid, :addr, 1)
+                RETURNING purchase_id, buyer_id, date, address, fulfillment_status
+            ''', uid=buyer_id, addr=address)
+            
+            if not purchase_rows:
+                return None
+            
+            row = purchase_rows[0]
+            purchase_id = row[0]
+            buyer = row[1]
+            date = row[2]
+            address_db = row[3]
+            fulfillment_status = row[4]
+
+            # Insert ledger entries
+            for seller_id, product_id, quantity in cart_items:
                 app.db.execute('''
                     INSERT INTO Ledger
                     (purchase_id, seller_id, product_id, quantity, fulfillment_status)
@@ -178,6 +206,22 @@ class Purchase:
                 ''', pid=purchase_id, sid=seller_id,
                      prod_id=product_id, qty=quantity)
 
+            # Update buyer balance (decrement)
+            app.db.execute('''
+                UPDATE Users
+                SET balance = balance - :amount
+                WHERE id = :uid
+            ''', amount=totalprice, uid=buyer_id)
+
+            # Update seller balances (increment)
+            for seller_id, seller_total in seller_totals.items():
+                app.db.execute('''
+                    UPDATE Users
+                    SET balance = balance + :amount
+                    WHERE id = :sid
+                ''', amount=seller_total, sid=seller_id)
+
+            # Clear the cart
             app.db.execute('''
                 DELETE FROM Cart
                 WHERE account_id = :uid
