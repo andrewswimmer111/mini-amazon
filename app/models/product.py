@@ -28,6 +28,15 @@ class Product:
         ''') 
         return [Product(*row) for row in rows]
     
+    @staticmethod
+    def get_categories():
+        rows = app.db.execute('''
+            SELECT DISTINCT category
+            FROM Products
+            WHERE category IS NOT NULL
+            ORDER BY category
+        ''')
+        return [row[0] for row in rows] if rows else []
 
     @staticmethod
     def create(name, description, price, category):
