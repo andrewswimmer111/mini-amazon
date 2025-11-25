@@ -1,26 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>Welcome, {{ user.firstname }} {{ user.lastname }}!</h1>
-  <h3>Email: {{ user.email }}</h3>
 
-  <!-- sorry I started this but realized I dont need to do it, someone else can finish -->
-  <h2> Item inventory </h2>
-  {% if selling_products %}
-    <div>
-        <table class='table table-hover table-bordered container'>
-          <thead>
-            <tr>
-              <th> Product Id </th>
-              <th> Product Name </th>
-              <th> Product Price </th>
-            </tr>
-          </thead>
-          <tbody>
-
-          </tbody>
-        </table>
-    </div>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
   {% endif %}
+{% endwith %}
+
+<div class="d-flex justify-content-between align-items-center">
+    <h1>Welcome, {{ user.firstname }} {{ user.lastname }}!</h1>
+
+    <a href="{{ url_for('users.update_profile') }}" class="btn btn-primary">
+        Update Profile
+    </a>
+</div> 
+
+<br><br>
+
+
 
   <br><br>
   <h2>Purchase History</h2>
@@ -144,4 +143,32 @@
   {% else %}
     <p>No purchases yet.</p>
   {% endif %}
+
+  <br><br>
+
+  <h2>Account Balance: ${{ balance }}</h2>
+  <!-- Top up form -->
+  <form method="POST" action="{{ url_for('users.topup') }}">
+      <div class="form-group">
+          <label>Add Funds</label>
+          <input type="number" step="0.01" name="amount" class="form-control" required>
+      </div>
+      <button class="btn btn-success" type="submit">Top Up</button>
+  </form>
+
+  <br>
+
+<!-- Withdraw form -->
+<form method="POST" action="{{ url_for('users.withdraw') }}">
+    <div class="form-group">
+        <label>Withdraw Funds</label>
+        <input type="number" step="0.01" name="amount" class="form-control" required>
+    </div>
+    <button class="btn btn-danger" type="submit">Withdraw</button>
+</form>
+
+
+
+
+
 {% endblock %}

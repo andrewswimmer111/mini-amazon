@@ -80,3 +80,74 @@ WHERE id = :id
         if not rows:
             return None
         return float(rows[0][0]) if rows[0][0] is not None else 0.0
+    
+    @staticmethod
+    def get_address(user_id):
+        """Get the address for a user."""
+        rows = app.db.execute("""
+SELECT address
+FROM Users
+WHERE id = :id
+""",
+                              id=user_id)
+        if not rows:
+            return None
+        return rows[0][0]  
+    
+    @staticmethod
+    def update(user_id, email, firstname, lastname, address, password=None):
+        # Check for email uniqueness
+        rows = app.db.execute("""
+            SELECT id FROM Users WHERE email = :email AND id != :uid
+        """, email=email, uid=user_id)
+        if rows:
+            return "email_taken"
+
+        # Update password if provided
+        if password:
+            hashed_pw = generate_password_hash(password)
+            app.db.execute("""
+                UPDATE Users
+                SET email = :email,
+                    firstname = :firstname,
+                    lastname = :lastname,
+                    address = :address,
+                    password = :password
+                WHERE id = :uid
+            """, email=email, firstname=firstname, lastname=lastname,
+            address=address, password=hashed_pw, uid=user_id)
+        else:
+            app.db.execute("""
+                UPDATE Users
+                SET email = :email,
+                    firstname = :firstname,
+                    lastname = :lastname,
+                    address = :address
+                WHERE id = :uid
+            """, email=email, firstname=firstname, lastname=lastname,
+            address=address, uid=user_id)
+
+        return "ok"
+    
+    @staticmethod
+    def topup(user_id, amount):
+        """Add amount to user's balance."""
+        app.db.execute("""
+                        UPDATE Users
+                        SET balance = COALESCE(balance, 0) + :amount
+                       WHERE id= :id
+                    """,
+                       amount=amount, id=user_id)
+        return "ok"
+    @staticmethod
+    def withdraw(user_id, amount):
+        """Deduct amount from user's balance."""
+        app.db.execute("""
+                        UPDATE Users
+                        SET balance = COALESCE(balance, 0) - :amount
+                       WHERE id= :id
+                    """,
+                       amount=amount, id=user_id)
+        return "ok"
+
+

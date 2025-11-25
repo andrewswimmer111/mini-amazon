@@ -3,7 +3,7 @@ from werkzeug.urls import url_parse
 from flask_login import login_user, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Optional
 
 from .models.purchase import Purchase
 from .models.user import User
@@ -74,17 +74,105 @@ def logout():
     logout_user()
     return redirect(url_for('index.index'))
 
-
+#PROFILE PAGE
 @bp.route('/profile')
 def profile():
     # Only logged-in users can see this page
     if current_user.is_authenticated:
         purchases = Purchase.get_all_purchanditems_for_user(current_user.id)
         selling_products = InventoryItem.get_for_seller(current_user.id)
+        balance = User.get_balance(current_user.id)
     else:
         flash("Please log in to view your profile.", "warning")
         return redirect(url_for('users.login'))  
     return render_template('userprofile.html', 
                            user=current_user, purchases=purchases,
+                           balance=balance,
                            selling_products=selling_products
                            )
+
+#FORM TO UPDATE PROFILE
+class UpdateProfileForm(FlaskForm):
+    firstname = StringField('First Name', validators=[DataRequired()])
+    lastname = StringField('Last Name', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    address = StringField('Address', validators=[Optional()])
+    password = PasswordField('New Password', validators=[Optional()])
+    password2 = PasswordField('Confirm Password', validators=[Optional(), EqualTo('password')])
+    submit = SubmitField('Update Profile')
+
+#PROFILE UPDATE ROUTE
+@bp.route('/profile/update', methods=['GET', 'POST'])
+def update_profile():
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
+
+    form = UpdateProfileForm()
+
+    if request.method == 'GET':
+        # Pre-fill form with current info
+        form.firstname.data = current_user.firstname
+        form.lastname.data = current_user.lastname
+        form.email.data = current_user.email
+        form.address.data = User.get_address(current_user.id)
+        return render_template('update_profile.html', form=form) #allows user to see existing info
+
+    if form.validate_on_submit():
+        result = User.update(
+            user_id=current_user.id,
+            email=form.email.data,
+            firstname=form.firstname.data,
+            lastname=form.lastname.data,
+            address=form.address.data,
+            password=form.password.data if form.password.data else None
+        ) #writes updated info to database
+
+        if result == "email_taken":
+            flash("That email is already in use by another account.", "danger")
+            return redirect(url_for('users.update_profile'))
+
+        flash("Profile updated!", "success")
+        return redirect(url_for('users.profile'))
+
+    return render_template('update_profile.html', form=form)
+
+#topup function
+@bp.route('/profile/topup', methods=['POST'])
+def topup():
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
+
+    amount = request.form.get('amount', type=float)
+    if amount<0:
+        flash("Please enter a value greater than 0", "danger")
+        return redirect(url_for('users.profile'))
+    if amount is None:
+        flash("Please enter a value", "danger")
+        return redirect(url_for('users.profile'))
+    
+    User.topup(current_user.id, amount)
+    flash(f"Successfully topped up ${amount:.2f} to your account.", "success")
+    return redirect(url_for('users.profile'))
+
+#withdraw function
+@bp.route('/profile/withdraw', methods=['POST'])
+def withdraw():
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
+
+    amount = request.form.get('amount', type=float)
+    if amount<0:
+        flash("Please enter a value greater than 0", "danger")
+        return redirect(url_for('users.profile'))
+    if amount is None:
+        flash("Please enter a value", "danger")
+        return redirect(url_for('users.profile'))
+    #get current balance to make sure withdraw amount doesnt exceed available balance
+    balance = User.get_balance(current_user.id)
+    if amount > balance:
+        flash("Insufficient funds for this withdrawal.", "danger")
+        return redirect(url_for('users.profile'))
+    
+    User.withdraw(current_user.id, amount)
+    flash(f"Successfully withdrew ${amount:.2f} from your account.", "success")
+    return redirect(url_for('users.profile'))

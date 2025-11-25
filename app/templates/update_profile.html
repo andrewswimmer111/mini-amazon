@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Update Profile</h2>
+<br><br><br>
+
+<form method="POST" action="{{ url_for('users.update_profile') }}">
+    {{ form.hidden_tag() }}
+    <h4>Update User Details</h4>
+    {{ form.firstname.label }} {{ form.firstname(class="form-control") }}<br>
+    {{ form.lastname.label }} {{ form.lastname(class="form-control") }}<br>
+    {{ form.email.label }} {{ form.email(class="form-control") }}<br>
+    {{ form.address.label }} {{ form.address(class="form-control") }}<br>
+
+    <hr>
+
+    <h4>Change Password (optional)</h4>
+    {{ form.password.label }} 
+    {{ form.password(class="form-control") }}
+    {% for error in form.password.errors %}
+        <div class="text-danger">{{ error }}</div>
+    {% endfor %}
+    <br>
+
+    {{ form.password2.label }} 
+    {{ form.password2(class="form-control") }}
+    {% for error in form.password2.errors %}
+        <div class="text-danger">{{ error }}</div>
+    {% endfor %}
+    <br>
+
+
+    <br>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}
