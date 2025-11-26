@@ -43,6 +43,7 @@ class RegistrationForm(FlaskForm):
     firstname = StringField('First Name', validators=[DataRequired()])
     lastname = StringField('Last Name', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
+    address = StringField('Address', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(),
@@ -51,7 +52,7 @@ class RegistrationForm(FlaskForm):
 
     def validate_email(self, email):
         if User.email_exists(email.data):
-            raise ValidationError('Already a user with this email.')
+            raise ValidationError('Already a user with this email. Please choose a different one.')
 
 
 @bp.route('/register', methods=['GET', 'POST'])
@@ -60,10 +61,13 @@ def register():
         return redirect(url_for('index.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        if User.register(form.email.data,
-                         form.password.data,
-                         form.firstname.data,
-                         form.lastname.data):
+        if User.register(
+            firstname=form.firstname.data,
+            lastname=form.lastname.data,
+            email=form.email.data,
+            password=form.password.data,
+            address=form.address.data
+        ):
             flash('Congratulations, you are now a registered user!')
             return redirect(url_for('users.login'))
     return render_template('register.html', title='Register', form=form)
