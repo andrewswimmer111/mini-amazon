@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>My Inventory</h2>
+    <a href="{{ url_for('index.index') }}" class="btn btn-secondary">Return to Home</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="alert alert-info mb-3">
+    <strong>Products:</strong> {{ entries|length }} | 
+    <strong>Total Units:</strong> {{ entries|sum(attribute='quantity') }}
+  </div>
+
+  <!-- Add Existing Product Section -->
+  <div class="card mb-3">
+    <div class="card-header">
+      <strong>Add Existing Product</strong>
+    </div>
+    <div class="card-body">
+      {% if available_products %}
+        <form method="POST" action="{{ url_for('sellers.add_to_inventory') }}" class="form-inline">
+          <div class="form-group mr-3">
+            <label for="product_id" class="mr-2">Product:</label>
+            <select name="product_id" id="product_id" class="form-control" required>
+              <option value="">-- Select Product --</option>
+              {% for product in available_products %}
+                <option value="{{ product[0] }}">{{ product[1] }} - ${{ "%.2f"|format(product[3]) }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group mr-3">
+            <label for="quantity" class="mr-2">Qty:</label>
+            <input type="number" name="quantity" id="quantity" class="form-control" min="1" value="1" style="width: 70px;" required>
+          </div>
+          <button type="submit" class="btn btn-success">Add</button>
+        </form>
+      {% else %}
+        <p class="text-muted mb-0">All existing products are already in your inventory.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Create New Product Section -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <strong>Create New Product</strong>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('sellers.create_product_and_add') }}">
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="name">Product Name</label>
+            <input type="text" name="name" id="name" class="form-control" placeholder="Product name" required>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="price">Price ($)</label>
+            <input type="number" name="price" id="price" class="form-control" step="0.01" min="0" placeholder="0.00" required>
+          </div>
+          <div class="form-group col-md-3">
+            <label for="category">Category</label>
+            <select name="category" id="category" class="form-control" required>
+              <option value="">-- Select --</option>
+              {% for cat in categories %}
+                <option value="{{ cat }}">{{ cat }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="new_quantity">Quantity</label>
+            <input type="number" name="quantity" id="new_quantity" class="form-control" min="1" value="1" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea name="description" id="description" class="form-control" rows="2" placeholder="Product description" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Create & Add to Inventory</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Inventory Table -->
+  {% if entries %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th class="text-right">Quantity</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in entries %}
+          <tr>
+            <td>
+              <a href="{{ url_for('items.view_product', product_id=entry.product_id) }}">
+                {{ entry.product.name or 'Unknown Product' }}
+              </a>
+            </td>
+            <td>{{ entry.product.category or '—' }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('sellers.update_product_price', product_id=entry.product_id) }}" class="form-inline">
+                <div class="input-group input-group-sm" style="width: 120px;">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">$</span>
+                  </div>
+                  <input type="number" name="price" class="form-control" step="0.01" min="0" 
+                         value="{{ "%.2f"|format(entry.product.price) if entry.product.price is not none else '' }}">
+                  <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-secondary btn-sm" title="Update Price">✓</button>
+                  </div>
+                </div>
+              </form>
+            </td>
+            <td class="text-right">
+              <form method="POST" action="{{ url_for('sellers.update_inventory_quantity', product_id=entry.product_id) }}" class="form-inline justify-content-end">
+                <input type="number" name="quantity" class="form-control form-control-sm mr-2" value="{{ entry.quantity }}" min="0" style="width: 70px;">
+                <button type="submit" class="btn btn-sm btn-primary">Update</button>
+              </form>
+            </td>
+            <td class="text-right">
+              <form method="POST" action="{{ url_for('sellers.remove_from_inventory', product_id=entry.product_id) }}" style="display:inline" onsubmit="return confirm('Remove this product from your inventory?');">
+                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info">Your inventory is empty. Add products using the forms above.</div>
+  {% endif %}
+</div>
+{% endblock %}

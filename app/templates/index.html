@@ -5,7 +5,6 @@
 <br><br>
 {% if current_user.is_authenticated %}
   <a href="{{ url_for('cart.view_cart') }}" class="btn btn-primary mb-3">View Cart</a>
-  <a href="{{ url_for('items.create_product') }}" class="btn btn-primary mb-3">Create Product</a>
 {% endif %}
 
 <h2>View a Seller’s Inventory</h2>

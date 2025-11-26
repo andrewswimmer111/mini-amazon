@@ -54,6 +54,7 @@ class Product:
             return None
         
 
+    @staticmethod
     def update(product_id, name, description, price, category):
         rows = app.db.execute('''
             UPDATE Products
@@ -72,6 +73,24 @@ class Product:
         id = rows[0][0]
         # build and return a Product object (match the shape your app uses)
         return Product.get_with_id(id)
+
+    @staticmethod
+    def update_price(product_id, price):
+        """Update just the price of a product."""
+        try:
+            rows = app.db.execute('''
+                UPDATE Products
+                SET price = :price
+                WHERE id = :product_id
+                RETURNING id
+            ''',
+            price=price, product_id=product_id)
+            if rows:
+                return Product.get_with_id(rows[0][0])
+            return None
+        except Exception as e:
+            print("Error updating product price:", e)
+            return None
 
     # Filters below
     @staticmethod
