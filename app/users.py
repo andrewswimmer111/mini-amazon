@@ -85,14 +85,13 @@ def profile():
     if current_user.is_authenticated:
         purchases = Purchase.get_all_purchanditems_for_user(current_user.id)
         selling_products = InventoryItem.get_for_seller(current_user.id)
-        balance = User.get_balance(current_user.id)
     else:
         flash("Please log in to view your profile.", "warning")
         return redirect(url_for('users.login'))  
     return render_template('userprofile.html', 
                            user=current_user, purchases=purchases,
-                           balance=balance,
-                           selling_products=selling_products
+                           selling_products=selling_products,
+                           balance=current_user.balance
                            )
 
 #FORM TO UPDATE PROFILE
@@ -118,7 +117,7 @@ def update_profile():
         form.firstname.data = current_user.firstname
         form.lastname.data = current_user.lastname
         form.email.data = current_user.email
-        form.address.data = User.get_address(current_user.id)
+        form.address.data = current_user.address
         return render_template('update_profile.html', form=form) #allows user to see existing info
 
     if form.validate_on_submit():
@@ -172,8 +171,7 @@ def withdraw():
         flash("Please enter a value", "danger")
         return redirect(url_for('users.profile'))
     #get current balance to make sure withdraw amount doesnt exceed available balance
-    balance = User.get_balance(current_user.id)
-    if amount > balance:
+    if amount > current_user.balance:
         flash("Insufficient funds for this withdrawal.", "danger")
         return redirect(url_for('users.profile'))
     

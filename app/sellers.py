@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 
 from .models.inventory import InventoryItem
 from .models.product import Product
+from .models.user import User
 
 bp = Blueprint('sellers', __name__, url_prefix='/seller')
 
@@ -171,7 +172,7 @@ def remove_from_inventory(product_id):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PUBLIC SELLER INVENTORY VIEWS (for viewing other sellers' inventories)
+# PUBLIC SELLER VIEW 
 # ─────────────────────────────────────────────────────────────────────────────
 
 @bp.route('/<int:seller_id>/inventory', methods=['GET'])
@@ -187,32 +188,15 @@ def seller_inventory_json(seller_id):
 @bp.route('/<int:seller_id>/inventory/view', methods=['GET'])
 def seller_inventory_view(seller_id):
     """View a seller's inventory (public view)."""
-    # Fetch seller info from DB
-    seller_row = current_app.db.execute(
-        "SELECT id, email, password, firstname, lastname FROM users WHERE id = :id",
-        id=seller_id
-    )
-    if not seller_row:
+    seller = User.get(seller_id)
+    if not seller:
         abort(404)
 
-    r = seller_row[0]
-    try:
-        seller = {
-            "id": r["id"],
-            "email": r["email"],
-            "firstname": r["firstname"],
-            "lastname": r["lastname"],
-        }
-    except Exception:
-        seller = {
-            "id": r[0],
-            "email": r[1],
-            "firstname": r[3],
-            "lastname": r[4],
-        }
-
     entries = InventoryItem.get_for_seller(seller_id)
-    return render_template('inventory.html', seller=seller, seller_id=seller_id, entries=entries)
+    return render_template('inventory.html', 
+                           seller=seller, 
+                           seller_id=seller_id, 
+                           entries=entries)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

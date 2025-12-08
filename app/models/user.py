@@ -6,16 +6,18 @@ from .. import login
 
 
 class User(UserMixin):
-    def __init__(self, id, email, firstname, lastname):
+    def __init__(self, id, email, firstname, lastname, address=None, balance=None):
         self.id = id
         self.email = email
         self.firstname = firstname
         self.lastname = lastname
+        self.address = address
+        self.balance = balance if balance is not None else 0.0
 
     @staticmethod
     def get_by_auth(email, password):
         rows = app.db.execute("""
-SELECT password, id, email, firstname, lastname
+SELECT password, id, email, firstname, lastname, address, balance
 FROM Users
 WHERE email = :email
 """,
@@ -61,39 +63,14 @@ RETURNING id
     @login.user_loader
     def get(id):
         rows = app.db.execute("""
-SELECT id, email, firstname, lastname
+SELECT id, email, firstname, lastname, address, balance
 FROM Users
 WHERE id = :id
 """,
                               id=id)
         return User(*(rows[0])) if rows else None
 
-    @staticmethod
-    def get_balance(user_id):
-        """Get the balance for a user."""
-        rows = app.db.execute("""
-SELECT balance
-FROM Users
-WHERE id = :id
-""",
-                              id=user_id)
-        if not rows:
-            return None
-        return float(rows[0][0]) if rows[0][0] is not None else 0.0
-    
-    @staticmethod
-    def get_address(user_id):
-        """Get the address for a user."""
-        rows = app.db.execute("""
-SELECT address
-FROM Users
-WHERE id = :id
-""",
-                              id=user_id)
-        if not rows:
-            return None
-        return rows[0][0]  
-    
+
     @staticmethod
     def update(user_id, email, firstname, lastname, address, password=None):
         # Check for email uniqueness

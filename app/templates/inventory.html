@@ -2,30 +2,53 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Inventory for seller: {{ seller.firstname or seller[1] or 'seller' }} (id={{ seller.id or seller[0] }})</h1>
+  <!-- Seller Profile Section -->
+  <div class="mb-5">
+    <h1>{{ seller.firstname }} {{ seller.lastname }}</h1>
+    
+    <div class="card">
+      <div class="card-body">
+        <p class="mb-2">
+          <strong>Email:</strong> {{ seller.email }}
+        </p>
+        <p class="mb-0">
+          <strong>Address:</strong> {{ seller.address }}
+        </p>
+      </div>
+    </div>
+  </div>
 
+  <!-- Inventory Section -->
+  <h2>Items for Sale</h2>
+  
   {% if entries %}
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Product ID</th>
-          <th>Name</th>
-          <th>Price</th>
-          <th>Quantity</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for e in entries %}
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-light">
           <tr>
-            <td>{{ e.product_id }}</td>
-            <td>{{ e.product_name or e.product.name }}</td>
-            <td>{{ e.product.price }}</td>
-            <td>{{ e.quantity }}</td>
+            <th>Product Name</th>
+            <th>Price</th>
+            <th>Quantity Available</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for e in entries %}
+            <tr>
+              <td>
+                <a href="{{ url_for('items.view_product', product_id=e.product_id) }}">
+                  {{ e.product_name or e.product.name }}
+                </a>
+              </td>
+              <td>${{ "%.2f"|format(e.product.price) }}</td>
+              <td>{{ e.quantity }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% else %}
-    <p>No inventory items found for this seller.</p>
+    <div class="alert alert-info">
+      This seller has no items for sale.
+    </div>
   {% endif %}
 {% endblock %}

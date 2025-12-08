@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Mini-Amazon</title>
+  <title>Ameowzon</title>
   <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
   <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
@@ -52,14 +52,13 @@
     {% block msg %}
       <h1>
         <a href="{{ url_for('index.index') }}" style="color: aliceblue; text-decoration: none;">
-          Mini-Amazon
+          Ameowzon
         </a>
       </h1>
       <div style="color: aliceblue; text-align: right; margin-bottom: 25px">
         {% if current_user.is_authenticated %}
           Hello {{current_user.firstname}}!
           <a href="{{ url_for('users.profile') }}" type="button" class="btn btn-light">Profile</a>
-          <a href="{{ url_for('sellers.my_inventory') }}" type="button" class="btn btn-light">My Inventory</a>
           <a href="{{ url_for('users.logout') }}" type="button" class="btn btn-light">Log out</a>
         {% else %}
           <a href="{{ url_for('users.login') }}" type="button" class="btn btn-light">Log in</a>

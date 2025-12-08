@@ -15,7 +15,7 @@ def view_cart():
     items = Cart.format_cart_items(uid)
     total = Cart.get_cart_total(uid)
     count = Cart.get_cart_item_count(uid)
-    balance = User.get_balance(uid)
+    balance = current_user.balance
     return render_template('cart.html', items=items, total=total, count=count, balance=balance)
 
 
