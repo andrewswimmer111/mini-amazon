@@ -68,13 +68,10 @@ def gen_products(num_products):
             # simple image URL placeholder
             # image_url = f'https://example.com/images/product_{pid}.jpg'
             
-            price = f"{random.randint(1, 500)}.{random.randint(0,99):02}"
             category = random.choice(['A', 'B', 'C', 'D'])
-            # order: id,name,description,image_url,price,category
-            # writer.writerow([pid, name, description, image_url, price, category])
-
-            writer.writerow([pid, name, description, price, category])
-            products.append({'id': pid, 'price': float(price), 'name': name})
+            # order: id,name,description,category
+            writer.writerow([pid, name, description, category])
+            products.append({'id': pid, 'name': name})
         print(f'\n{num_products} products generated')
     return products
 
@@ -102,10 +99,11 @@ def gen_inventory(sellers, products):
             stocked = random.sample(products, k=min(PRODUCTS_PER_SELLER, len(products)))
             for prod in stocked:
                 qty = random.randint(0, MAX_INV_QTY)
+                price = f"{random.uniform(5, 1000):.2f}"
                 if qty == 0:
                     # you may still want sellers listed with zero stock; include them
                     pass
-                writer.writerow([seller_id, prod['id'], qty])
+                writer.writerow([seller_id, prod['id'], qty, price])
                 product_to_sellers[prod['id']].append({'seller_id': seller_id, 'qty': qty})
         print('\nInventory written')
     return product_to_sellers
@@ -193,7 +191,9 @@ def gen_purchases_and_order_items(num_purchases, users, products, product_to_sel
                 prod_info = next((p for p in products if p['id'] == pid), None)
                 if prod_info is None:
                     continue
-                unit_price = round(prod_info['price'], 2)
+                # Get price from inventory (we'll need to track this differently)
+                # For now, generate a random price
+                unit_price = round(random.uniform(5, 1000), 2)
                 items_for_this_purchase.append({
                     'seller_id': seller_entry['seller_id'],
                     'product_id': pid,

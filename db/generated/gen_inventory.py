@@ -1,10 +1,11 @@
 import csv
 import sys
 import random
+from decimal import Decimal, ROUND_HALF_UP
 
 def gen_inventory(num_entries, num_users, num_products):
     filename = 'Inventory.csv'
-    fieldnames = ['seller_id', 'product_id', 'quantity']
+    fieldnames = ['seller_id', 'product_id', 'quantity', 'price']
 
     with open(filename, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
@@ -14,11 +15,14 @@ def gen_inventory(num_entries, num_users, num_products):
             seller_id = random.randint(1, num_users)
             product_id = random.randint(1, num_products)
             quantity = random.randint(1, 100)
+            # Generate random price between 5 and 1000
+            price = Decimal(random.uniform(5, 1000)).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
             writer.writerow({
                 'seller_id': seller_id,
                 'product_id': product_id,
-                'quantity': quantity
+                'quantity': quantity,
+                'price': price
             })
 
     print(f"{num_entries} inventory records written to {filename}")

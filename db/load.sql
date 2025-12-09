@@ -7,7 +7,7 @@ SELECT pg_catalog.setval(
 );
 
 \echo 'Loading products...'
-\COPY Products FROM 'Products.csv' WITH DELIMITER ',' NULL '' CSV HEADER
+\COPY Products(id, name, description, image, category, created_by) FROM 'Products.csv' WITH DELIMITER ',' NULL '' CSV HEADER
 SELECT pg_catalog.setval(
     pg_get_serial_sequence('products','id'),
     (SELECT COALESCE(MAX(id),0) FROM products) + 1,

@@ -30,9 +30,10 @@ class Cart:
     def get_user_cart(user_id):
         rows = app.db.execute('''
             SELECT c.account_id, c.product_id, c.seller_id, c.quantity,
-                   p.name, p.description, p.price, u.firstname, u.lastname
+                   p.name, p.description, i.price, u.firstname, u.lastname
             FROM Cart c
             JOIN Products p ON c.product_id = p.id
+            JOIN Inventory i ON c.product_id = i.product_id AND c.seller_id = i.seller_id
             JOIN Users u ON c.seller_id = u.id
             WHERE c.account_id = :uid
             ''',
@@ -57,9 +58,9 @@ class Cart:
     @staticmethod
     def get_cart_total(user_id):
         rows = app.db.execute('''
-            SELECT COALESCE(SUM(c.quantity * p.price), 0)
+            SELECT COALESCE(SUM(c.quantity * i.price), 0)
             FROM Cart c
-            JOIN Products p ON c.product_id = p.id
+            JOIN Inventory i ON c.product_id = i.product_id AND c.seller_id = i.seller_id
             WHERE c.account_id = :uid
             ''', uid=user_id)
         if not rows:

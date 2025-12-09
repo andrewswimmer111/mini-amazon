@@ -27,9 +27,9 @@
   </p>
 
   <p>
-    {{ form.price.label }}<br>
-    {{ form.price(step="0.01", class_="form-control") }}<br>
-    {% for error in form.price.errors %}
+    {{ form.image.label }}<br>
+    {{ form.image(class_="form-control", size=40) }}<br>
+    {% for error in form.image.errors %}
       <span style="color: red;">[{{ error }}]</span>
     {% endfor %}
   </p>
@@ -38,6 +38,14 @@
     {{ form.category.label }}<br>
     {{ form.category(class_="form-control") }}<br>
     {% for error in form.category.errors %}
+      <span style="color: red;">[{{ error }}]</span>
+    {% endfor %}
+  </p>
+
+  <p>
+    {{ form.created_by.label }}<br>
+    {{ form.created_by(class_="form-control", size=10) }}<br>
+    {% for error in form.created_by.errors %}
       <span style="color: red;">[{{ error }}]</span>
     {% endfor %}
   </p>

@@ -7,7 +7,7 @@ from decimal import Decimal, ROUND_HALF_UP
 def gen_products(num_products):
     fake = Faker()
     filename = 'Products.csv'
-    fieldnames = ['id', 'name', 'description', 'price', 'category']
+    fieldnames = ['id', 'name', 'description', 'category']
 
     # Product categories must match database ENUM: 'A', 'B', 'C', 'D'
     categories = ['A', 'B', 'C', 'D']
@@ -19,14 +19,12 @@ def gen_products(num_products):
         for i in range(1, num_products + 1):
             name = fake.catch_phrase()
             description = fake.paragraph(nb_sentences=3)
-            price = Decimal(random.uniform(5, 1000)).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
             category = random.choice(categories)
 
             writer.writerow({
                 'id': i,
                 'name': name,
                 'description': description,
-                'price': price,
                 'category': category
             })
 

@@ -21,7 +21,7 @@ class Purchase:
                 pur.fulfillment_status,
                 prod.id AS product_id,
                 prod.name AS product_name,
-                prod.price,
+                COALESCE(i.price, 0.0) AS price,
                 prod.category,
                 l.quantity,
                 l.seller_id,
@@ -29,6 +29,7 @@ class Purchase:
             FROM Ledger l
             JOIN Purchases pur ON l.purchase_id = pur.purchase_id
             JOIN Products prod ON l.product_id = prod.id
+            LEFT JOIN Inventory i ON l.product_id = i.product_id AND l.seller_id = i.seller_id
             WHERE pur.buyer_id = :buyer_id
             ORDER BY pur.date DESC, pur.purchase_id
             ''',
@@ -132,10 +133,11 @@ class Purchase:
 
             for seller_id, product_id, quantity in cart_items:
                 prod_rows = app.db.execute('''
-                    SELECT id, name, price, category
-                    FROM Products
-                    WHERE id = :pid
-                ''', pid=product_id)
+                    SELECT p.id, p.name, i.price, p.category
+                    FROM Products p
+                    JOIN Inventory i ON p.id = i.product_id AND i.seller_id = :sid
+                    WHERE p.id = :pid
+                ''', pid=product_id, sid=seller_id)
                 if prod_rows:
                     prod = prod_rows[0]
                     prod_name = prod[1]

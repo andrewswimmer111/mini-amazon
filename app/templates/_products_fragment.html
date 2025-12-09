@@ -7,9 +7,9 @@
         <th scope="col">Product ID</th>
         <th scope="col">Product Name</th>
         <th scope="col">Product Description</th>
+        <th scope="col">Image</th>
         <th scope="col">Product Category</th>
-        <th scope="col">Price</th>
-        <th scope="col">Add</th>
+        <th scope="col">Created By</th>
       </tr>
     </thead>
     <tbody>
@@ -22,19 +22,15 @@
             </a>
           </td>
           <td>{{product.description}}</td>
-          <td>{{product.category}}</td>
-          <td>{{product.price}}</td>
           <td>
-            {% if current_user.is_authenticated %}
-              <form method="post" action="{{ url_for('cart.add_to_cart') }}" style="display:inline-block">
-                <input type="hidden" name="product_id" value="{{ product.id }}">
-                <input type="number" name="quantity" value="1" min="1" style="width:70px" aria-label="quantity">
-                <button type="submit" class="btn btn-sm btn-success">Add</button>
-              </form>
+            {% if product.image %}
+              <img src="{{ product.image }}" alt="{{ product.name }}" style="max-width: 100px; max-height: 100px;">
             {% else %}
-              <a href="{{ url_for('users.login') }}">Log in to add</a>
+              <span class="text-muted">No image</span>
             {% endif %}
           </td>
+          <td>{{product.category}}</td>
+          <td>{{product.created_by or '—'}}</td>
         </tr>
       {% endfor %}
     </tbody>

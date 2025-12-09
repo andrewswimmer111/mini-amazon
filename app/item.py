@@ -3,8 +3,8 @@ from flask_login import current_user, login_required
 from flask import Blueprint, request, render_template, flash, redirect, url_for
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SelectField, DecimalField, SubmitField
-from wtforms.validators import DataRequired, NumberRange
+from wtforms import StringField, TextAreaField, SelectField, DecimalField, SubmitField, IntegerField
+from wtforms.validators import DataRequired, NumberRange, Optional
 
 from .models.product import Product
 from .models.inventory import InventoryItem
@@ -23,8 +23,9 @@ def view_product(product_id):
 class ProductForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
-    price = DecimalField('Price', places=2, validators=[DataRequired(), NumberRange(min=0)])
+    image = StringField('Image URL', validators=[Optional()])
     category = SelectField('Category', validators=[DataRequired()], coerce=str)
+    created_by = IntegerField('Created By (User ID)', validators=[Optional()])
     submit = SubmitField('Create Product')
 
 @bp.route('/create_product', methods=['GET', 'POST'])
@@ -39,16 +40,17 @@ def create_product():
     if form.validate_on_submit():
         name = form.name.data
         description = form.description.data
-        price = form.price.data  # Decimal
+        image = form.image.data or None
         category = form.category.data
+        created_by = form.created_by.data or current_user.id if current_user.is_authenticated else None
 
         try:
             product = Product.create(
                 name=name,
                 description=description,
-                price=price,
+                image=image,
                 category=category,
-                # created_by=current_user.id  # if you track creator
+                created_by=created_by
             )
         except Exception as e:
             flash('Could not create product: ' + str(e), 'danger')
@@ -76,18 +78,20 @@ def edit_product(product_id):
     form.category.choices = [(str(c), c) for c in categories]
 
     if form.validate_on_submit():
-        # Pull values from the form (price may be Decimal)
+        # Pull values from the form
         product.name = form.name.data
         product.description = form.description.data
-        product.price = form.price.data
+        product.image = form.image.data or None
         product.category = form.category.data
+        created_by = form.created_by.data if form.created_by.data else product.created_by
 
         try:
             product = Product.update(product_id,
                                      name=product.name,
                                      description=product.description,
-                                     price=product.price,
-                                     category=product.category)
+                                     image=product.image,
+                                     category=product.category,
+                                     created_by=created_by)
         except Exception as e:
             flash('Could not update product: ' + str(e), 'danger')
             return render_template('create_product.html', form=form, edit=True)

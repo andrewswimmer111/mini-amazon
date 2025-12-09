@@ -35,6 +35,7 @@ def add_to_inventory():
     """Add a product to seller's inventory."""
     product_id = request.form.get('product_id', type=int)
     quantity = request.form.get('quantity', 1, type=int)
+    price = request.form.get('price', type=float)
     
     if not product_id:
         flash("Please select a product to add.", "danger")
@@ -44,13 +45,17 @@ def add_to_inventory():
         flash("Quantity must be greater than 0.", "danger")
         return redirect(url_for('sellers.my_inventory'))
     
+    if price is None or price < 0:
+        flash("Please enter a valid price.", "danger")
+        return redirect(url_for('sellers.my_inventory'))
+    
     # Check if product exists
     product = Product.get_with_id(product_id)
     if not product:
         flash("Product not found.", "danger")
         return redirect(url_for('sellers.my_inventory'))
     
-    result = InventoryItem.add_or_update(current_user.id, product_id, quantity)
+    result = InventoryItem.add_or_update(current_user.id, product_id, quantity, price)
     if result:
         flash(f"Added {quantity} units of '{product.name}' to your inventory.", "success")
     else:
@@ -91,13 +96,13 @@ def create_product_and_add():
         return redirect(url_for('sellers.my_inventory'))
     
     # Create the product
-    product = Product.create(name=name, description=description, price=price, category=category)
+    product = Product.create(name=name, description=description, category=category)
     if not product:
         flash("Failed to create product. The name might already exist.", "danger")
         return redirect(url_for('sellers.my_inventory'))
     
-    # Add to inventory
-    result = InventoryItem.add_or_update(current_user.id, product.id, quantity)
+    # Add to inventory with price
+    result = InventoryItem.add_or_update(current_user.id, product.id, quantity, price)
     if result:
         flash(f"Created '{name}' and added {quantity} units to your inventory.", "success")
     else:
@@ -109,7 +114,7 @@ def create_product_and_add():
 @bp.route('/inventory/update-price/<int:product_id>', methods=['POST'])
 @login_required
 def update_product_price(product_id):
-    """Update the price of a product."""
+    """Update the price of a product in inventory."""
     price = request.form.get('price', type=float)
     
     if price is None or price < 0:
@@ -122,7 +127,8 @@ def update_product_price(product_id):
         flash("You can only update prices for products in your inventory.", "danger")
         return redirect(url_for('sellers.my_inventory'))
     
-    result = Product.update_price(product_id, price)
+    # Update price in inventory
+    result = InventoryItem.set_quantity(current_user.id, product_id, item.quantity, price)
     if result:
         flash(f"Price updated to ${price:.2f}.", "success")
     else:
@@ -208,10 +214,17 @@ def seller_inventory_view(seller_id):
 def add(product_id):
     """Add a product to inventory from product detail page."""
     quantity = request.form.get('quantity', 1, type=int)
+    price = request.form.get('price', type=float)
+    
+    if price is None or price < 0:
+        flash("Please enter a valid price.", "danger")
+        return redirect(url_for('items.view_product', product_id=product_id))
+    
     InventoryItem.add_or_update(
         seller_id=current_user.id,
         product_id=product_id,
-        quantity=quantity
+        quantity=quantity,
+        price=price
     )
     flash("Product added to your inventory.", "success")
     return redirect(url_for('items.view_product', product_id=product_id))

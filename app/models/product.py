@@ -2,17 +2,18 @@ from flask import current_app as app
 
 
 class Product:
-    def __init__(self, id, name, description, price, category=None):
+    def __init__(self, id, name, description, image=None, category=None, created_by=None):
         self.id = id
         self.name = name
         self.description = description
-        self.price = price
+        self.image = image
         self.category = category
+        self.created_by = created_by
 
     @staticmethod
     def get_with_id(id):
         rows = app.db.execute('''
-            SELECT *
+            SELECT id, name, description, image, category, created_by
             FROM Products
             WHERE id = :id
             ''',
@@ -22,31 +23,35 @@ class Product:
 
     @staticmethod
     def get_all():
+        # Only return products that have at least one seller
         rows = app.db.execute('''
-            SELECT *
-            FROM Products
+            SELECT DISTINCT p.id, p.name, p.description, p.image, p.category, p.created_by
+            FROM Products p
+            INNER JOIN Inventory i ON p.id = i.product_id
         ''') 
         return [Product(*row) for row in rows]
     
     @staticmethod
     def get_categories():
+        # Only show categories for products that have sellers
         rows = app.db.execute('''
-            SELECT DISTINCT category
-            FROM Products
-            WHERE category IS NOT NULL
-            ORDER BY category
+            SELECT DISTINCT p.category
+            FROM Products p
+            INNER JOIN Inventory i ON p.id = i.product_id
+            WHERE p.category IS NOT NULL
+            ORDER BY p.category
         ''')
         return [row[0] for row in rows] if rows else []
 
     @staticmethod
-    def create(name, description, price, category):
+    def create(name, description, category, image=None, created_by=None):
         try:
             rows = app.db.execute('''
-                INSERT INTO PRODUCTS(name, description, price, category)
-                VALUES (:name, :description, :price, :category)
+                INSERT INTO PRODUCTS(name, description, image, category, created_by)
+                VALUES (:name, :description, :image, :category, :created_by)
                 RETURNING id
                 ''',
-                name=name, description=description, price=price, category=category)
+                name=name, description=description, image=image, category=category, created_by=created_by)
             id = rows[0][0]
             return Product.get_with_id(id)
         except Exception as e:
@@ -55,17 +60,18 @@ class Product:
         
 
     @staticmethod
-    def update(product_id, name, description, price, category):
+    def update(product_id, name, description, category, image=None, created_by=None):
         rows = app.db.execute('''
             UPDATE Products
             SET name = :name,
                 description = :description,
-                price = :price,
-                category = :category
+                image = :image,
+                category = :category,
+                created_by = :created_by
             WHERE id = :product_id
             RETURNING id
         ''',
-        name=name, description=description, price=price, category=category, product_id=product_id)
+        name=name, description=description, image=image, category=category, created_by=created_by, product_id=product_id)
 
         if not rows:
             return None
@@ -74,28 +80,12 @@ class Product:
         # build and return a Product object (match the shape your app uses)
         return Product.get_with_id(id)
 
-    @staticmethod
-    def update_price(product_id, price):
-        """Update just the price of a product."""
-        try:
-            rows = app.db.execute('''
-                UPDATE Products
-                SET price = :price
-                WHERE id = :product_id
-                RETURNING id
-            ''',
-            price=price, product_id=product_id)
-            if rows:
-                return Product.get_with_id(rows[0][0])
-            return None
-        except Exception as e:
-            print("Error updating product price:", e)
-            return None
-
     # Filters below
     @staticmethod
-    def _build_filter_sql(category=None, keyword=None, minPrice=None, maxPrice=None):
-        sql = ["SELECT * FROM Products p"]
+    def _build_filter_sql(category=None, keyword=None):
+        # Only show products that have at least one seller in Inventory
+        sql = ["SELECT DISTINCT p.id, p.name, p.description, p.image, p.category, p.created_by FROM Products p"]
+        sql.append("INNER JOIN Inventory i ON p.id = i.product_id")
         conditions = []
         params = {}
 
@@ -107,25 +97,18 @@ class Product:
             conditions.append("(p.name ILIKE :keyword OR p.description ILIKE :keyword)")
             params["keyword"] = f"%{keyword}%"
         
-        if minPrice is not None:
-            conditions.append("p.price >= :minPrice")
-            params["minPrice"] = minPrice
-        
-        if maxPrice is not None:
-            conditions.append("p.price <= :maxPrice")
-            params["maxPrice"] = maxPrice
-        
         if conditions:
             where_clause = "WHERE " + " AND ".join(conditions)
         else:
             where_clause = ""
         
-        return where_clause, params
+        return " ".join(sql) + " " + where_clause, params
 
     @staticmethod
-    def count_with_filters(category=None, keyword=None, minPrice=None, maxPrice=None):
-        where_clause, params = Product._build_filter_sql(category, keyword, minPrice, maxPrice)
-        sql = f"SELECT COUNT(*) FROM Products p {where_clause}"
+    def count_with_filters(category=None, keyword=None):
+        sql_query, params = Product._build_filter_sql(category, keyword)
+        # Convert SELECT to COUNT
+        sql = sql_query.replace("SELECT DISTINCT p.id, p.name, p.description, p.image, p.category, p.created_by", "SELECT COUNT(DISTINCT p.id)")
         row = app.db.execute(sql, params)[0]
         if row is None:
             return 0
@@ -137,8 +120,6 @@ class Product:
     def get_with_filters(
         category: str = None,
         keyword: str = None,
-        minPrice: float = None,
-        maxPrice: float = None,
         sortBy: str = None,
         sortDir: str = None,
         limit: int = None,
@@ -149,14 +130,14 @@ class Product:
         if sortDir and sortDir.lower() not in {"asc", "desc"}:
             raise ValueError("sortDir must be 'asc' or 'desc'")
         
-        if sortBy and sortBy.lower() not in {"price", "name"}:
-            raise ValueError("sortBy be 'asc' or 'desc'")
+        if sortBy and sortBy.lower() not in {"name"}:
+            raise ValueError("sortBy must be 'name'")
         
         # Build SQL
-        where_clause, params = Product._build_filter_sql(category, keyword, minPrice, maxPrice)
+        sql_query, params = Product._build_filter_sql(category, keyword)
         sql_parts = [
-            f"SELECT * FROM Products p {where_clause}",
-            f"ORDER BY p.{sortBy} {sortDir.upper()}"
+            sql_query,
+            f"ORDER BY p.{sortBy} {sortDir.upper()}" if sortBy else "ORDER BY p.id"
         ]
 
         if limit is not None:

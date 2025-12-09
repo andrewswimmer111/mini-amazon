@@ -44,29 +44,8 @@
     value="{{ keyword or '' }}"
   >
 
-  <label for="minPrice">Min Price:</label>
-  <input 
-    type="number" 
-    id="minPrice" 
-    name="minPrice" 
-    step="0.01"
-    min="0"
-    value="{{ minPrice or '' }}"
-  >
-
-  <label for="maxPrice">Max Price:</label>
-  <input 
-    type="number" 
-    id="maxPrice" 
-    name="maxPrice" 
-    step="0.01"
-    min="0"
-    value="{{ maxPrice or '' }}"
-  >
-
   <label for="sortBy">Sort by:</label>
   <select id="sortBy" name="sortBy">
-    <option value="price" {% if sortBy == 'price' %}selected{% endif %}>Price</option>
     <option value="name" {% if sortBy == 'name' %}selected{% endif %}>Name</option>
   </select>
 

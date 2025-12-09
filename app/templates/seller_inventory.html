@@ -36,9 +36,13 @@
             <select name="product_id" id="product_id" class="form-control" required>
               <option value="">-- Select Product --</option>
               {% for product in available_products %}
-                <option value="{{ product[0] }}">{{ product[1] }} - ${{ "%.2f"|format(product[3]) }}</option>
+                <option value="{{ product[0] }}">{{ product[1] }}</option>
               {% endfor %}
             </select>
+          </div>
+          <div class="form-group mr-3">
+            <label for="price" class="mr-2">Price ($):</label>
+            <input type="number" name="price" id="price" class="form-control" step="0.01" min="0" placeholder="0.00" style="width: 100px;" required>
           </div>
           <div class="form-group mr-3">
             <label for="quantity" class="mr-2">Qty:</label>
@@ -119,7 +123,7 @@
                     <span class="input-group-text">$</span>
                   </div>
                   <input type="number" name="price" class="form-control" step="0.01" min="0" 
-                         value="{{ "%.2f"|format(entry.product.price) if entry.product.price is not none else '' }}">
+                         value="{{ "%.2f"|format(entry.price) if entry.price is not none else '' }}">
                   <div class="input-group-append">
                     <button type="submit" class="btn btn-outline-secondary btn-sm" title="Update Price">✓</button>
                   </div>

@@ -24,10 +24,8 @@ def index():
     # Params
     category = request.args.get('category', type=str) or None
     keyword = request.args.get('keyword', type=str) or None
-    minPrice = request.args.get('minPrice', type=float) or None
-    maxPrice = request.args.get('maxPrice', type=float) or None
 
-    sortBy = request.args.get('sortBy', "price", type=str)
+    sortBy = request.args.get('sortBy', "name", type=str)
     sortDir = request.args.get('sortDir', "asc", type=str)
 
     # Pagination
@@ -36,11 +34,11 @@ def index():
         page = 1
     
     offset = (page - 1) * PER_PAGE
-    total = Product.count_with_filters(category=category, keyword=keyword, minPrice=minPrice, maxPrice=maxPrice)
+    total = Product.count_with_filters(category=category, keyword=keyword)
     pages = ceil(total / PER_PAGE)
 
     # Calculate products and categories
-    products = Product.get_with_filters(category, keyword, minPrice, maxPrice, sortBy, sortDir, PER_PAGE, offset)
+    products = Product.get_with_filters(category, keyword, sortBy, sortDir, PER_PAGE, offset)
     categories = Product.get_categories()
 
 
@@ -53,5 +51,5 @@ def index():
                                avail_products=products, page=page,
                                pages=pages, total=total,
                                categories=categories, selected_category=category,
-                               keyword=keyword, minPrice=minPrice, maxPrice=maxPrice,
+                               keyword=keyword,
                                sortBy=sortBy, sortDir=sortDir)
