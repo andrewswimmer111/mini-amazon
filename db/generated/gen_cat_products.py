@@ -38,7 +38,7 @@ print(f"Retrieved {len(cats)} cats.\n")
 
 csv_file = open(OUTPUT_FILE, "w", newline="", encoding="utf-8")
 writer = csv.writer(csv_file)
-writer.writerow(["id", "name", "description", "category"])
+writer.writerow(["id", "name", "description", "image", "category", "created_by"])
 
 # -----------------------------
 # GENERATE PRODUCT ROWS
