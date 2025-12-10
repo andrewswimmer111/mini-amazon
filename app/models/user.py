@@ -6,18 +6,19 @@ from .. import login
 
 
 class User(UserMixin):
-    def __init__(self, id, email, firstname, lastname, address=None, balance=None):
+    def __init__(self, id, email, firstname, lastname, address=None, balance=None, bio=None):
         self.id = id
         self.email = email
         self.firstname = firstname
         self.lastname = lastname
         self.address = address
         self.balance = balance if balance is not None else 0.0
+        self.bio = bio
 
     @staticmethod
     def get_by_auth(email, password):
         rows = app.db.execute("""
-SELECT password, id, email, firstname, lastname, address, balance
+SELECT password, id, email, firstname, lastname, address, balance, bio
 FROM Users
 WHERE email = :email
 """,
@@ -44,8 +45,8 @@ WHERE email = :email
     def register(firstname, lastname, email, password, address):
         try:
             rows = app.db.execute("""
-INSERT INTO Users(firstname, lastname, email, password, address, balance)
-VALUES(:firstname, :lastname, :email, :password, :address, 0.0)
+INSERT INTO Users(firstname, lastname, email, password, address, balance, bio)
+VALUES(:firstname, :lastname, :email, :password, :address, 0.0, "")
 RETURNING id
 """,
                                   email=email,
@@ -63,7 +64,7 @@ RETURNING id
     @login.user_loader
     def get(id):
         rows = app.db.execute("""
-SELECT id, email, firstname, lastname, address, balance
+SELECT id, email, firstname, lastname, address, balance, bio
 FROM Users
 WHERE id = :id
 """,
@@ -72,7 +73,7 @@ WHERE id = :id
 
 
     @staticmethod
-    def update(user_id, email, firstname, lastname, address, password=None):
+    def update(user_id, email, firstname, lastname, address, bio, password=None):
         # Check for email uniqueness
         rows = app.db.execute("""
             SELECT id FROM Users WHERE email = :email AND id != :uid
@@ -100,9 +101,10 @@ WHERE id = :id
                     firstname = :firstname,
                     lastname = :lastname,
                     address = :address
+                    bio = :bio
                 WHERE id = :uid
             """, email=email, firstname=firstname, lastname=lastname,
-            address=address, uid=user_id)
+            address=address, bio=bio, uid=user_id)
 
         return "ok"
     

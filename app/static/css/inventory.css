@@ -1,0 +1,167 @@
+/* ------------------ Banner Styles ------------------ */
+
+.seller-banner,
+.inventory-banner {
+    background-color: #ff914d;
+    border: 4px solid #004aad;
+    color: white;
+    font-size: 24px;
+    font-weight: 900;
+    border-radius: 20px;
+    padding: 14px 25px;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+    font-family: "Lato", sans-serif;
+    margin-top: 15px;
+}
+
+/* ------------------ Seller Profile Card ------------------ */
+
+.seller-profile-card {
+    background-color: #f7f7f7;
+    border: 4px solid #004aad;
+    border-radius: 20px;
+    padding: 20px 25px;
+    margin-bottom: 40px;
+}
+
+.seller-profile-meta p {
+    margin: 6px 0;
+    font-size: 1.05rem;
+}
+
+/* ------------------ Inventory Grid ------------------ */
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+/* ------------------ Inventory Card ------------------ */
+
+.inventory-card {
+    background-color: #f2f2f2;
+    border: 4px solid #004aad;
+    border-radius: 22px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    transition: transform .12s ease, box-shadow .2s ease;
+}
+
+.inventory-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+/* Product name */
+.inv-prod-name a {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: #004aad;
+    text-decoration: none;
+}
+
+.inv-prod-name a:hover {
+    text-decoration: underline;
+}
+
+/* Product image */
+.inv-image {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    background-color: white;
+    border-radius: 12px;
+    padding: 8px;
+    margin: 10px 0;
+}
+
+.inv-placeholder {
+    width: 100%;
+    height: 180px;
+    background: #ddd;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: italic;
+    color: #737373;
+    margin: 10px 0;
+}
+
+/* Price */
+.inv-prod-price {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ff914d;
+    margin-top: 6px;
+}
+
+/* Quantity */
+.inv-prod-qty {
+    margin-top: auto;
+    font-size: .95rem;
+    color: #333;
+    padding-top: 10px;
+}
+
+/* ------------------ Pagination ------------------ */
+
+.inventory-pagination .pagination {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 0;
+}
+
+.inventory-pagination .page-link {
+    border-radius: 999px;
+    padding: 6px 12px;
+    border: 2px solid #004aad;
+    color: #004aad;
+    font-weight: bold;
+    background: white;
+    text-decoration: none;
+    transition: .12s ease;
+}
+
+.inventory-pagination .page-link:hover {
+    background: #004aad;
+    color: white;
+    transform: translateY(-3px);
+}
+
+.inventory-pagination .page-item.active .page-link {
+    background: #ff914d;
+    border-color: #ff914d;
+    color: white;
+}
+
+.inventory-pagination .page-item.disabled .page-link {
+    background: #eee;
+    border-color: #ccc;
+    color: #999;
+    cursor: default;
+}
+
+.pagination-summary {
+    color: #737373;
+    margin-top: 8px;
+    font-size: 0.9rem;
+}
+
+/* ------------------ No Items Message ------------------ */
+
+.no-items-msg {
+    background-color: #ff914d;
+    border: 4px solid #004aad;
+    border-radius: 20px;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-weight: 700;
+}

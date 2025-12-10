@@ -3,12 +3,12 @@ from flask import current_app as app
 
 
 class InventoryItem:
-    def __init__(self, seller_id, product_id, quantity, price, name=None, category=None):
+    def __init__(self, seller_id, product_id, quantity, price, name=None, category=None, image=None):
         self.seller_id = seller_id
         self.product_id = product_id
         self.quantity = quantity
         self.price = price
-        self.product = {"name": name, "category": category}
+        self.product = {"name": name, "category": category, "image": image}
 
     @classmethod
     def from_row(cls, row):
@@ -18,8 +18,9 @@ class InventoryItem:
             quantity = row['quantity']
             price = float(row['price']) if 'price' in row and row['price'] is not None else 0.0
             name = row.get('name')
+            image = row.get("image")
             category = row.get('category')
-            return cls(seller_id, product_id, quantity, price, name, category)
+            return cls(seller_id, product_id, quantity, price, name, category, image)
         except Exception:
             seller_id, product_id, quantity, price = row[0], row[1], row[2], float(row[3]) if len(row) > 3 and row[3] is not None else 0.0
             name = None
@@ -28,7 +29,9 @@ class InventoryItem:
                 name = row[4]
             if len(row) >= 6:
                 category = row[5]
-            return cls(seller_id, product_id, quantity, price, name, category)
+            if len(row) >= 7:
+                image = row[6]
+            return cls(seller_id, product_id, quantity, price, name, category, image)
 
     def to_dict(self):
         return {
@@ -44,7 +47,7 @@ class InventoryItem:
     @classmethod
     def get_for_seller(cls, seller_id):
         sql = """
-        SELECT i.seller_id, i.product_id, i.quantity, i.price, p.name, p.category
+        SELECT i.seller_id, i.product_id, i.quantity, i.price, p.name, p.category, p.image
         FROM inventory i
         LEFT JOIN products p ON p.id = i.product_id
         WHERE i.seller_id = :seller_id
@@ -56,7 +59,7 @@ class InventoryItem:
     @staticmethod
     def get_sellers_from_product(product_id):
         rows = app.db.execute('''
-                    SELECT i.seller_id, i.product_id, i.quantity, i.price, p.name, p.category
+                    SELECT i.seller_id, i.product_id, i.quantity, i.price, p.name, p.category, p.image
                     FROM Inventory i
                     LEFT JOIN Products p ON p.id = i.product_id
                     WHERE i.product_id = :product_id
@@ -134,7 +137,7 @@ class InventoryItem:
         """Get a specific inventory item."""
         try:
             rows = app.db.execute('''
-                SELECT i.seller_id, i.product_id, i.quantity, i.price, p.name, p.category
+                SELECT i.seller_id, i.product_id, i.quantity, i.price, p.name, p.category, p.image
                 FROM Inventory i
                 LEFT JOIN Products p ON p.id = i.product_id
                 WHERE i.seller_id = :seller_id AND i.product_id = :product_id

@@ -1,54 +1,122 @@
-<!-- templates/sellers/inventory.html -->
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/inventory.css') }}">
+</head>
+
 {% extends "base.html" %}
 
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/inventory.css') }}">
+</head>
+
 {% block content %}
-  <!-- Seller Profile Section -->
-  <div class="mb-5">
-    <h1>{{ seller.firstname }} {{ seller.lastname }}</h1>
-    
-    <div class="card">
-      <div class="card-body">
-        <p class="mb-2">
-          <strong>Email:</strong> {{ seller.email }}
-        </p>
-        <p class="mb-0">
-          <strong>Address:</strong> {{ seller.address }}
-        </p>
-      </div>
+
+<!-- Seller banner -->
+<div class="seller-banner">
+  {{ seller.firstname }} {{ seller.lastname }}
+</div>
+
+<!-- Seller profile card -->
+<div class="seller-profile-card">
+  <div class="seller-profile-row">
+    <div class="seller-profile-meta">
+      <p><strong>Email:</strong> {{ seller.email }}</p>
+      <p><strong>Address:</strong> {{ seller.address }}</p>
+      <p><strong>Bio:</strong> {{ seller.bio }}</p>
     </div>
   </div>
+</div>
 
-  <!-- Inventory Section -->
-  <h2>Items for Sale</h2>
-  
-  {% if entries %}
-    <div class="table-responsive">
-      <table class="table table-hover">
-        <thead class="table-light">
-          <tr>
-            <th>Product Name</th>
-            <th>Price</th>
-            <th>Quantity Available</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for e in entries %}
-            <tr>
-              <td>
-                <a href="{{ url_for('items.view_product', product_id=e.product_id) }}">
-                  {{ e.product_name or e.product.name }}
-                </a>
-              </td>
-              <td>${{ "%.2f"|format(e.product.price) }}</td>
-              <td>{{ e.quantity }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<!-- Inventory Header -->
+<div class="inventory-banner">
+  Items for Sale
+</div>
+
+{% if entries %}
+<div class="inventory-grid">
+
+  {% for e in entries %}
+  <div class="inventory-card">
+
+    <!-- Product Name -->
+    <div class="inv-prod-name">
+      <a href="{{ url_for('items.view_product', product_id=e.product_id) }}">
+        {{ e.product.name }}
+      </a>
     </div>
-  {% else %}
-    <div class="alert alert-info">
-      This seller has no items for sale.
+
+    <!-- Product Image -->
+    {% if e.product.image %}
+      <img class="inv-image" src="{{ e.product.image }}" alt="{{ e.product.name }}">
+    {% else %}
+      <div class="inv-placeholder">No Image</div>
+    {% endif %}
+
+    <!-- Price -->
+    <div class="inv-prod-price">
+      ${{ "%.2f"|format(e.price) }}
     </div>
-  {% endif %}
+
+    <!-- Quantity -->
+    <div class="inv-prod-qty">
+      <strong>Quantity:</strong> {{ e.quantity }}
+    </div>
+
+  </div>
+  {% endfor %}
+
+</div>
+
+<!-- Pagination -->
+{% if pages > 1 %}
+<nav aria-label="Inventory pages" class="inventory-pagination">
+  <ul class="pagination">
+
+    <!-- Previous -->
+    <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+      {% if page > 1 %}
+      <a class="page-link"
+         href="{{ url_for('sellers.seller_inventory_view', seller_id=seller_id, page=page-1) }}">
+        Previous
+      </a>
+      {% else %}
+      <span class="page-link">Previous</span>
+      {% endif %}
+    </li>
+
+    <!-- Page Numbers -->
+    {% for p in range(1, pages + 1) %}
+      <li class="page-item {% if p == page %}active{% endif %}">
+        <a class="page-link"
+           href="{{ url_for('sellers.seller_inventory_view', seller_id=seller_id, page=p) }}">
+          {{ p }}
+        </a>
+      </li>
+    {% endfor %}
+
+    <!-- Next -->
+    <li class="page-item {% if page >= pages %}disabled{% endif %}">
+      {% if page < pages %}
+      <a class="page-link"
+         href="{{ url_for('sellers.seller_inventory_view', seller_id=seller_id, page=page+1) }}">
+        Next
+      </a>
+      {% else %}
+      <span class="page-link">Next</span>
+      {% endif %}
+    </li>
+
+  </ul>
+
+  <div class="pagination-summary">
+    Showing page {{ page }} of {{ pages }} — {{ total }} items
+  </div>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="no-items-msg">
+  This seller has no items for sale.
+</div>
+{% endif %}
+
 {% endblock %}

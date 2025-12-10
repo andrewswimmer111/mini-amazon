@@ -1,6 +1,8 @@
 # app/sellers.py
-from flask import Blueprint, jsonify, render_template, abort, current_app, flash, redirect, url_for, request
+from flask import Blueprint, jsonify, render_template, abort, flash, redirect, url_for, request
 from flask_login import login_required, current_user
+from flask import current_app as app
+from math import ceil
 
 from .models.inventory import InventoryItem
 from .models.product import Product
@@ -191,22 +193,51 @@ def seller_inventory_json(seller_id):
     })
 
 
-@bp.route('/<int:seller_id>/inventory/view', methods=['GET'])
+@bp.route('/<int:seller_id>/inventory/view')
 def seller_inventory_view(seller_id):
-    """View a seller's inventory (public view)."""
-    seller = User.get(seller_id)
-    
-    if not seller:
-        return render_template(
-            "seller_not_found.html",
-            seller_id=seller_id
-        ), 404
 
-    entries = InventoryItem.get_for_seller(seller_id)
-    return render_template('inventory.html', 
-                           seller=seller, 
-                           seller_id=seller_id, 
-                           entries=entries)
+    PER_PAGE = 10 
+
+    page = request.args.get('page', 1, type=int)
+    if page < 1:
+        page = 1
+
+    offset = (page - 1) * PER_PAGE
+
+    seller = User.get(seller_id)
+    if not seller:
+        return render_template("seller_not_found.html", seller_id=seller_id), 404
+
+    # Count number of products this seller has
+    total = app.db.execute(
+        "SELECT COUNT(*) FROM Inventory WHERE seller_id = :id",
+        id=seller_id
+    )[0][0]
+
+    pages = ceil(total / PER_PAGE) if total else 1
+
+    # Fetch only paginated entries
+    entries = app.db.execute("""
+        SELECT i.seller_id, i.product_id, i.quantity, i.price,
+               p.name, p.category, p.image
+        FROM Inventory i
+        LEFT JOIN Products p ON p.id = i.product_id
+        WHERE i.seller_id = :seller_id
+        ORDER BY p.name
+        LIMIT :limit OFFSET :offset
+    """, seller_id=seller_id, limit=PER_PAGE, offset=offset)
+
+    entries = [InventoryItem.from_row(row) for row in entries]
+
+    return render_template(
+        "inventory.html",
+        seller=seller,
+        seller_id=seller_id,
+        entries=entries,
+        page=page,
+        pages=pages,
+        total=total
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

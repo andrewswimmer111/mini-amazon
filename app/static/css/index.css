@@ -173,11 +173,13 @@
 
 /* ---------- META (category, created_by) ---------- */
 .product-meta {
-    margin-top: 10px;
+    margin-top: auto;     /* pushes it to the bottom */
     font-size: 0.85rem;
     color: #333;
     text-align: center;
+    padding-top: 10px;    /* optional spacing */
 }
+
 
 .product-meta div + div {
     margin-top: 4px;
