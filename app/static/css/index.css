@@ -1,0 +1,292 @@
+/* ---- Layout Wrapper ---- */
+.ameowzon-layout {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+/* ---- LEFT SIDEBAR ---- */
+.filter-sidebar {
+    width: 230px;
+    height: fit-content; /* FIXED HEIGHT like your mockup */
+    background-color: #ff914d;
+    border: 4px solid #004aad;
+    border-radius: 25px;
+    padding: 20px 18px;
+    color: white;
+    font-family: "Lato", sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Sidebar title */
+.sidebar-title {
+    font-size: 22px;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+/* Section headings */
+.sidebar-section h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    text-decoration: underline;
+}
+
+/* Form layout inside sidebar */
+.sidebar-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Labels */
+.sidebar-form label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Inputs and dropdowns */
+.sidebar-form input,
+.sidebar-form select {
+    border-radius: 6px;
+    border: none;
+    padding: 6px 8px;
+    font-size: 14px;
+}
+
+/* Orange sidebar buttons */
+.sidebar-btn {
+    margin-top: 10px;
+    background-color: white;
+    border: none;
+    color: #004aad;
+    font-weight: bold;
+    padding: 6px 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.sidebar-btn:hover {
+    background-color: #004aad;
+    color: white;
+}
+
+/* Horizontal separators */
+.filter-sidebar hr {
+    border: none;
+    border-top: 2px solid #004aad;
+    margin: 15px 0;
+}
+
+/* ---- RIGHT-SIDE CONTENT ---- */
+.product-content {
+    flex-grow: 1;
+    padding-right: 20px;
+}
+
+/* ---------- PRODUCT GRID ---------- */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+    margin-top: 25px;
+}
+
+/* ---------- PRODUCT CARD ---------- */
+.product-card {
+    background-color: #f2f2f2;              /* light gray card */
+    border: 4px solid #004aad;              /* cobalt border */
+    border-radius: 22px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect: slight lift */
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+/* ---------- PRODUCT IMAGE ---------- */
+.product-image {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 12px;
+    background-color: white;
+    padding: 8px;
+}
+
+.product-image.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: italic;
+    background-color: #ddd;
+    color: #737373;
+}
+
+/* ---------- NAME ---------- */
+.product-name {
+    margin-top: 12px;
+    text-align: center;
+    font-weight: 900;
+    font-size: 1.15rem;
+    color: #004aad;
+}
+
+.product-name a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.product-name a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- DESCRIPTION ---------- */
+.product-desc {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #444;
+    margin-top: 6px;
+    padding: 0 6px;
+}
+
+/* ---------- PRICE RANGE ---------- */
+.product-price {
+    margin-top: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ff914d; /* Ameowzon orange */
+}
+
+/* ---------- META (category, created_by) ---------- */
+.product-meta {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #333;
+    text-align: center;
+}
+
+.product-meta div + div {
+    margin-top: 4px;
+}
+
+/* ----------- WELCOME BANNER ----------- */
+.welcome-banner {
+    background-color: #ff914d;          /* Ameowzon orange */
+    border: 4px solid #004aad;          /* cobalt border */
+    border-radius: 20px;
+    color: white;
+    padding: 18px 30px;
+    font-size: 32px;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 25px;
+    font-family: "Lato", sans-serif;
+    letter-spacing: 1px;
+}
+
+
+/* ---------- PAGINATION (Ameowzon) ---------- */
+.pagination {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 18px 0 6px 0;
+    align-items: center;
+}
+
+.pagination .page-item {
+    display: inline-block;
+}
+
+/* page-link base style - pill buttons */
+.pagination .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    min-width: 44px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #004aad;            /* cobalt text for normal links */
+    background: white;
+    border: 2px solid #004aad; /* cobalt outline */
+    transition: transform .12s ease, background .12s ease, color .12s ease;
+    cursor: pointer;
+}
+
+/* hover */
+.pagination .page-link:hover {
+    transform: translateY(-3px);
+    background: #004aad;
+    color: white;
+}
+
+/* active page */
+.pagination .page-item.active .page-link,
+.pagination .page-link.active {
+    background: #ff914d; /* orange background for current page */
+    color: white;
+    border-color: #ff914d;
+    transform: none;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+}
+
+/* disabled state */
+.pagination .page-item.disabled .page-link,
+.pagination .page-item.disabled span.page-link {
+    background: #eee;
+    color: #9a9a9a;
+    border-color: #ddd;
+    cursor: default;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ellipsis */
+.pagination .page-item.disabled .page-link,
+.pagination .page-item.disabled span.page-link {
+    padding: 6px 10px;
+    min-width: auto;
+}
+
+/* compact previous/next labels */
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    font-size: 0.9rem;
+    padding: 6px 10px;
+}
+
+/* summary text below pagination */
+nav[aria-label="Product pages"] > .mt-2,
+nav[aria-label="Product pages"] .pagination + .mt-2 {
+    color: #737373;
+    font-size: 0.9rem;
+    margin-top: 8px;
+}
+
+
+/* small responsive tweak: center on narrow screens */
+@media (max-width: 640px) {
+    .pagination {
+        justify-content: center;
+    }
+}

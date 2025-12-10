@@ -19,7 +19,7 @@ def test():
 def index():
 
     # Settings
-    PER_PAGE = 5
+    PER_PAGE = 8
 
     # Params
     category = request.args.get('category', type=str) or None
@@ -38,7 +38,14 @@ def index():
     pages = ceil(total / PER_PAGE)
 
     # Calculate products and categories
-    products = Product.get_with_filters(category, keyword, sortBy, sortDir, PER_PAGE, offset)
+    products = Product.get_with_filters(
+        category=category,
+        keyword=keyword,
+        sortBy=sortBy,
+        sortDir=sortDir,
+        limit=PER_PAGE,
+        offset=offset
+    )
     categories = Product.get_categories()
 
 

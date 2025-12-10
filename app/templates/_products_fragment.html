@@ -1,62 +1,70 @@
 {% import '_macros.html' as macros %}
 
 <div id="products-container">
-  <table class='table table-hover table-bordered container'>
-    <thead class="thead-dark">
-      <tr>
-        <th scope="col">Product ID</th>
-        <th scope="col">Product Name</th>
-        <th scope="col">Product Description</th>
-        <th scope="col">Image</th>
-        <th scope="col">Product Category</th>
-        <th scope="col">Created By</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for product in avail_products%}
-        <tr>
-          <th scope="row">{{product.id}}</th>
-          <td>
-            <a href="{{ url_for('items.view_product', product_id=product.id) }}">
-              {{product.name}}
-            </a>
-          </td>
-          <td>{{product.description}}</td>
-          <td>
-            {% if product.image %}
-              <img src="{{ product.image }}" alt="{{ product.name }}" style="max-width: 100px; max-height: 100px;">
-            {% else %}
-              <span class="text-muted">No image</span>
-            {% endif %}
-          </td>
-          <td>{{product.category}}</td>
-          <td>{{product.created_by or '—'}}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
 
-  {# --- Pagination controls --- #}
+  <div class="product-grid">
 
+    {% for product in avail_products %}
+      <div class="product-card">
+
+        <!-- IMAGE -->
+        <a href="{{ url_for('items.view_product', product_id=product.id) }}">
+          {% if product.image %}
+            <img class="product-image" src="{{ product.image }}" alt="{{ product.name }}">
+          {% else %}
+            <div class="product-image placeholder">No Image</div>
+          {% endif %}
+        </a>
+
+        <!-- NAME -->
+        <div class="product-name">
+          <a href="{{ url_for('items.view_product', product_id=product.id) }}">
+            {{ product.name }}
+          </a>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="product-desc">
+          {{ product.description }}
+        </div>
+
+        <!-- PRICE -->
+        <div class="product-price">
+          {% if product.min_price and product.max_price %}
+            ${{ '%.2f'|format(product.min_price) }} — ${{ '%.2f'|format(product.max_price) }}
+          {% else %}
+            <span class="text-muted">N/A</span>
+          {% endif %}
+        </div>
+
+        <!-- CATEGORY + SELLER -->
+        <div class="product-meta">
+          <div><strong>Category:</strong> {{ product.category }}</div>
+          <div><strong>Created By:</strong> {{ product.created_by or '—' }}</div>
+        </div>
+
+      </div>
+    {% endfor %}
+
+  </div>
+
+  <!-- PAGINATION (unchanged) -->
   {% if pages is defined and pages > 1 %}
     <nav aria-label="Product pages">
       <ul class="pagination">
 
-        {# Previous #}
+        <!-- Previous -->
         <li class="page-item {% if page <= 1 %}disabled{% endif %}">
           {% if page > 1 %}
             <a class="page-link"
               hx-get="{{ macros.url_with_page(page-1) }}"
               hx-target="#products-container"
-              hx-swap="outerHTML">
-              Previous
-            </a>
+              hx-swap="outerHTML">Previous</a>
           {% else %}
             <span class="page-link">Previous</span>
           {% endif %}
         </li>
 
-        {# Page window (adjust window size as desired) #}
         {% set start = page - 2 if page - 2 > 1 else 1 %}
         {% set end = page + 2 if page + 2 < pages else pages %}
 
@@ -65,9 +73,7 @@
             <a class="page-link"
               hx-get="{{ macros.url_with_page(1) }}"
               hx-target="#products-container"
-              hx-swap="outerHTML">
-              1
-            </a>
+              hx-swap="outerHTML">1</a>
           </li>
           {% if start > 2 %}
             <li class="page-item disabled"><span class="page-link">…</span></li>
@@ -79,9 +85,7 @@
             <a class="page-link"
               hx-get="{{ macros.url_with_page(pnum) }}"
               hx-target="#products-container"
-              hx-swap="outerHTML">
-              {{ pnum }}
-            </a>
+              hx-swap="outerHTML">{{ pnum }}</a>
           </li>
         {% endfor %}
 
@@ -93,30 +97,26 @@
             <a class="page-link"
               hx-get="{{ macros.url_with_page(pages) }}"
               hx-target="#products-container"
-              hx-swap="outerHTML">
-              {{ pages }}
-            </a>
+              hx-swap="outerHTML">{{ pages }}</a>
           </li>
         {% endif %}
 
-        {# Next #}
         <li class="page-item {% if page >= pages %}disabled{% endif %}">
           {% if page < pages %}
             <a class="page-link"
               hx-get="{{ macros.url_with_page(page+1) }}"
               hx-target="#products-container"
-              hx-swap="outerHTML">
-              Next
-            </a>
+              hx-swap="outerHTML">Next</a>
           {% else %}
             <span class="page-link">Next</span>
           {% endif %}
         </li>
       </ul>
 
-      <div class="mt-2">
+      <div class="mt-2 pagination">
         Showing page {{ page }} of {{ pages }} — {{ total }} results
       </div>
     </nav>
   {% endif %}
+
 </div>

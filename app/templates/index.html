@@ -1,68 +1,92 @@
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+
 {% extends "base.html" %}
 
 {% block content %}
 
-<br><br>
-{% if current_user.is_authenticated %}
-  <a href="{{ url_for('cart.view_cart') }}" class="btn btn-primary mb-3">View Cart</a>
-{% endif %}
+<div class="ameowzon-layout">
 
-<h2>View a Seller’s Inventory</h2>
-<form id="seller-form" onsubmit="goToSeller(event)">
-  <label for="seller-id">Enter Seller ID:</label>
-  <input 
-    type="number" 
-    id="seller-id" 
-    name="seller_id" 
-    min="0" 
-    placeholder="e.g. 0"
-    required
-  >
-  <button type="submit">View Inventory</button>
-</form>
+  <!-- LEFT SIDEBAR -->
+  <aside class="filter-sidebar">
 
-<br><br>
+    <!-- VIEW SELLER INVENTORY -->
+    <div class="sidebar-section">
+      <h4>View Profiles</h4>
 
-<h2>Products for sale:</h2>
+      <form id="seller-form" onsubmit="goToSeller(event)" class="sidebar-form">
+        <label for="seller-id">User ID:</label>
+        <input
+          type="number"
+          id="seller-id"
+          name="seller_id"
+          min="0"
+          placeholder="e.g. 0"
+          required
+        >
+        <button class="sidebar-btn" type="submit">View</button>
+      </form>
+    </div>
 
-<form method="get" action="{{ url_for('index.index') }}">
+    <hr>
 
-  <label for="category">Category:</label>
-  <select id="category" name="category">
-    <option value="" {% if not selected_category %}selected{% endif %}>All</option>
-    {% for c in categories %}
-      <option value="{{ c }}" {% if selected_category == c %}selected{% endif %}>{{ c }}</option>
-    {% endfor %}
-  </select>
+    <!-- FILTERS -->
+    <div class="sidebar-section">
+      <h4>Filters</h4>
 
-  <label for="keyword">Keyword:</label>
-  <input 
-    type="text" 
-    id="keyword" 
-    name="keyword" 
-    placeholder="Search"
-    value="{{ keyword or '' }}"
-  >
+      <form method="get" action="{{ url_for('index.index') }}" class="sidebar-form">
 
-  <label for="sortBy">Sort by:</label>
-  <select id="sortBy" name="sortBy">
-    <option value="name" {% if sortBy == 'name' %}selected{% endif %}>Name</option>
-  </select>
+        <!-- Category -->
+        <label for="category">Category:</label>
+        <select id="category" name="category">
+          <option value="" {% if not selected_category %}selected{% endif %}>All</option>
+          {% for c in categories %}
+            <option value="{{ c }}" {% if selected_category == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
 
-  <select id="sortDir" name="sortDir">
-    <option value="asc" {% if sortDir == 'asc' %}selected{% endif %}>Ascending</option>
-    <option value="desc" {% if sortDir == 'desc' %}selected{% endif %}>Descending</option>
-  </select>
+        <!-- Keyword -->
+        <label for="keyword">Keyword:</label>
+        <input 
+          type="text" 
+          id="keyword" 
+          name="keyword"
+          placeholder="Search"
+          value="{{ keyword or '' }}"
+        >
 
-  <button type="submit">Apply</button>
-  <button type="button" id="reset-btn" data-url="{{ url_for('index.index') }}">
-    Reset
-  </button>
-</form>
+        <!-- Sorting -->
+        <label for="sortBy">Sort by:</label>
+        <select id="sortBy" name="sortBy">
+          <option value="name" {% if sortBy == 'name' %}selected{% endif %}>Name</option>
+          <option value="min_price" {% if sortBy == 'min_price' %}selected{% endif %}>Lowest Price</option>
+          <option value="max_price" {% if sortBy == 'max_price' %}selected{% endif %}>Highest Price</option>
+        </select>
 
-{% include '_products_fragment.html' %}
+        <select id="sortDir" name="sortDir">
+          <option value="asc" {% if sortDir == 'asc' %}selected{% endif %}>Ascending</option>
+          <option value="desc" {% if sortDir == 'desc' %}selected{% endif %}>Descending</option>
+        </select>
 
-<br><br>
+        <button type="submit" class="sidebar-btn">Apply</button>
+        <button type="button" id="reset-btn" class="sidebar-btn" data-url="{{ url_for('index.index') }}">Reset</button>
+      </form>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT SIDE CONTENT -->
+  <main class="product-content">
+    <div class="welcome-banner">
+        Welcome to Ameowzon, your one-stop shop for all cats!
+    </div>
+
+
+    {% include '_products_fragment.html' %}
+  </main>
+
+</div>
 
 <script>
   document.getElementById('reset-btn').addEventListener('click', (e) => {
@@ -73,10 +97,10 @@
     event.preventDefault();
     const id = document.getElementById('seller-id').value.trim();
     if (id !== '') {
-      // redirect to the seller inventory view
       window.location.href = `/seller/${id}/inventory/view`;
     }
   }
 </script>
+
 
 {% endblock %}

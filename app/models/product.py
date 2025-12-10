@@ -2,13 +2,15 @@ from flask import current_app as app
 
 
 class Product:
-    def __init__(self, id, name, description, image=None, category=None, created_by=None):
+    def __init__(self, id, name, description, image=None, category=None, created_by=None, min_price=None, max_price=None):
         self.id = id
         self.name = name
         self.description = description
         self.image = image
         self.category = category
         self.created_by = created_by
+        self.min_price = min_price
+        self.max_price = max_price
 
     @staticmethod
     def get_with_id(id):
@@ -79,13 +81,33 @@ class Product:
         id = rows[0][0]
         # build and return a Product object (match the shape your app uses)
         return Product.get_with_id(id)
+        
+    def getPriceRange(id):
+        rows = app.db.execute('''
+            SELECT 
+                MIN(price) AS min_price,
+                MAX(price) AS max_price
+            FROM Inventory
+            WHERE product_id = :id
+        ''',
+        id=id)
+
+        # rows is a list of dictionaries; return the first row
+        if rows:
+            return rows[0]['min_price'], rows[0]['max_price']
+        return None, None
+
 
     # Filters below
     @staticmethod
-    def _build_filter_sql(category=None, keyword=None):
-        # Only show products that have at least one seller in Inventory
-        sql = ["SELECT DISTINCT p.id, p.name, p.description, p.image, p.category, p.created_by FROM Products p"]
-        sql.append("INNER JOIN Inventory i ON p.id = i.product_id")
+    def _build_filter_sql(category=None, keyword=None, min_price=None, max_price=None):
+        sql = [
+            "SELECT p.id, p.name, p.description, p.image, p.category, p.created_by,",
+            "       MIN(i.price) AS min_price, MAX(i.price) AS max_price",
+            "FROM Products p",
+            "INNER JOIN Inventory i ON p.id = i.product_id"
+        ]
+
         conditions = []
         params = {}
 
@@ -93,61 +115,72 @@ class Product:
             conditions.append("p.category = :category")
             params["category"] = category
         
-        if keyword is not None: 
+        if keyword is not None:
             conditions.append("(p.name ILIKE :keyword OR p.description ILIKE :keyword)")
             params["keyword"] = f"%{keyword}%"
-        
-        if conditions:
-            where_clause = "WHERE " + " AND ".join(conditions)
-        else:
-            where_clause = ""
-        
-        return " ".join(sql) + " " + where_clause, params
+
+        if min_price is not None:
+            conditions.append("MIN(i.price) >= :min_price")
+            params["min_price"] = min_price
+
+        if max_price is not None:
+            conditions.append("MIN(i.price) <= :max_price")
+            params["max_price"] = max_price
+
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+        # Must group by product to use MIN(i.price)
+        sql.append(where_clause)
+        sql.append("GROUP BY p.id, p.name, p.description, p.image, p.category, p.created_by")
+
+        return "\n".join(sql), params
+
 
     @staticmethod
-    def count_with_filters(category=None, keyword=None):
-        sql_query, params = Product._build_filter_sql(category, keyword)
-        # Convert SELECT to COUNT
-        sql = sql_query.replace("SELECT DISTINCT p.id, p.name, p.description, p.image, p.category, p.created_by", "SELECT COUNT(DISTINCT p.id)")
+    def count_with_filters(category=None, keyword=None, min_price=None, max_price=None):
+        sql_query, params = Product._build_filter_sql(category, keyword, min_price, max_price)
+
+        # count distinct product IDs from grouped results
+        sql = f"SELECT COUNT(*) FROM ({sql_query}) AS sub"
+        
         row = app.db.execute(sql, params)[0]
-        if row is None:
-            return 0
-        else:
-            return int(row[0])
+        return int(row[0]) if row else 0
+
         
     
     @staticmethod
     def get_with_filters(
-        category: str = None,
-        keyword: str = None,
-        sortBy: str = None,
-        sortDir: str = None,
-        limit: int = None,
-        offset: int = None
-    ): 
+        category=None,
+        keyword=None,
+        min_price=None,
+        max_price=None,
+        sortBy=None,
+        sortDir=None,
+        limit=None,
+        offset=None
+    ):
 
-        # Param checks
+        sql_query, params = Product._build_filter_sql(category, keyword, min_price, max_price)
+
+        # Sorting
         if sortDir and sortDir.lower() not in {"asc", "desc"}:
             raise ValueError("sortDir must be 'asc' or 'desc'")
-        
-        if sortBy and sortBy.lower() not in {"name"}:
-            raise ValueError("sortBy must be 'name'")
-        
-        # Build SQL
-        sql_query, params = Product._build_filter_sql(category, keyword)
-        sql_parts = [
-            sql_query,
-            f"ORDER BY p.{sortBy} {sortDir.upper()}" if sortBy else "ORDER BY p.id"
-        ]
+
+        if sortBy and sortBy.lower() not in {"name", "min_price", "max_price"}:
+            raise ValueError("sortBy must be 'name' or 'min_price' or 'max_price'")
+
+        sort_column = sortBy if sortBy else "p.id"
+        sort_direction = sortDir.upper() if sortDir else "ASC"
+
+        sql = f"{sql_query}\nORDER BY {sort_column} {sort_direction}"
 
         if limit is not None:
-            sql_parts.append("LIMIT :limit")
-            params["limit"] = int(limit)
-            
-        if offset is not None:
-            sql_parts.append("OFFSET :offset")
-            params["offset"] = int(offset)
+            sql += "\nLIMIT :limit"
+            params["limit"] = limit
 
-        full_sql = "\n".join(sql_parts)
-        rows = app.db.execute(full_sql, params)
-        return [Product(*row) for row in rows]
+        if offset is not None:
+            sql += "\nOFFSET :offset"
+            params["offset"] = offset
+
+        rows = app.db.execute(sql, params)
+        return rows  # or build Product objects if needed

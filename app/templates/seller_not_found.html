@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="not-found-card">
+
+    <h2 class="nf-title">Seller Not Found</h2>
+
+    <img 
+        src="https://cataas.com/cat/LF50q8b34X2W7nSV/says/meow"
+        alt="Meow not found"
+        class="nf-cat"
+    >
+
+    <p>No seller exists with ID <strong>{{ seller_id }}</strong>.</p>
+    <p>Please check the number and try again.</p>
+
+    <a href="{{ url_for('index.index') }}" class="nf-btn">
+        Return to Homepage
+    </a>
+
+</div>
+{% endblock %}
+
+
+
+<style>
+.not-found-card {
+    max-width: 550px;
+    margin: 40px auto;
+    background-color: #ff914d;
+    border: 4px solid #004aad;
+    border-radius: 20px;
+    padding: 25px;
+    color: white;
+    text-align: center;
+    font-family: "Lato", sans-serif;
+}
+
+.nf-title {
+    font-size: 32px;
+    font-weight: 900;
+    margin-bottom: 15px;
+}
+
+/* CATAAS cat image */
+.nf-cat {
+    width: 90%;
+    max-width: 350px;
+    border-radius: 15px;
+    border: 4px solid #004aad;
+    margin-bottom: 15px;
+}
+
+.nf-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: white;
+    color: #004aad;
+    border-radius: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.15s ease;
+}
+
+.nf-btn:hover {
+    background-color: #004aad;
+    color: white;
+    transform: translateY(-3px);
+}
+
+</style>

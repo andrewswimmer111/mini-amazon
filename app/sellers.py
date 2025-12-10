@@ -195,8 +195,12 @@ def seller_inventory_json(seller_id):
 def seller_inventory_view(seller_id):
     """View a seller's inventory (public view)."""
     seller = User.get(seller_id)
+    
     if not seller:
-        abort(404)
+        return render_template(
+            "seller_not_found.html",
+            seller_id=seller_id
+        ), 404
 
     entries = InventoryItem.get_for_seller(seller_id)
     return render_template('inventory.html', 

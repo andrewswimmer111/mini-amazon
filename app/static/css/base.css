@@ -1,0 +1,74 @@
+/* HEADER BAR */
+.ameowzon-header {
+    height: 90px;
+    background-color: #737373; /* gray bar */
+    display: flex;
+    align-items: center;
+}
+
+/* LOGO */
+.ameowzon-logo a {
+    color: #ff914d;           /* Ameowzon orange */
+    font-size: 48px;
+    font-weight: 900;
+    text-decoration: none;
+    letter-spacing: 1px;
+    font-family: "Lato", sans-serif;
+    text-shadow: 2px 2px #004aad; /* cobalt outline effect like your mockup */
+}
+
+/* WELCOME TEXT */
+.welcome-text {
+    color: white;
+    margin-right: 15px;
+    font-size: 18px;
+}
+
+/* BUTTONS */
+.ameowzon-btn {
+    background-color: #ff914d;
+    color: white;
+    font-weight: bold;
+    padding: 8px 18px;
+    border-radius: 25px;
+    margin-left: 10px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.ameowzon-btn:hover {
+    background-color: #ff7a26; /* slightly darker orange */
+    transform: translateY(-2px);
+}
+
+/* MAIN CONTENT AREA */
+.main {
+    padding-top: 20px;
+}
+
+.ameowzon-logo-inner {
+    position: relative;
+    display: inline-block;
+}
+
+/* LEFT WHISKER */
+.ameowzon-logo-inner::before {
+    content: "<";
+    position: absolute;
+    left: 60px;
+    top: -20px;
+    font-size: 32px;
+    font-weight: 900;
+    color: #004aad;    /* cobalt blue */
+}
+
+/* RIGHT WHISKER */
+.ameowzon-logo-inner::after {
+    content: ">";
+    position: absolute;
+    left: 35px;
+    top: -20px;
+    font-size: 32px;
+    font-weight: 900;
+    color: #004aad;    /* cobalt blue */
+}

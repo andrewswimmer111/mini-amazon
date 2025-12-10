@@ -6,7 +6,7 @@
   <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
   <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/example.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
 
   <style>
@@ -48,27 +48,36 @@
 </head>
 
 <body>
-  <div class="sidenav">
-    {% block msg %}
-      <h1>
-        <a href="{{ url_for('index.index') }}" style="color: aliceblue; text-decoration: none;">
-          Ameowzon
-        </a>
-      </h1>
-      <div style="color: aliceblue; text-align: right; margin-bottom: 25px">
-        {% if current_user.is_authenticated %}
-          Hello {{current_user.firstname}}!
-          <a href="{{ url_for('users.profile') }}" type="button" class="btn btn-light">Profile</a>
-          <a href="{{ url_for('users.logout') }}" type="button" class="btn btn-light">Log out</a>
-        {% else %}
-          <a href="{{ url_for('users.login') }}" type="button" class="btn btn-light">Log in</a>
-        {% endif %}
-      </div>
-    {% endblock %}
-  </div>
-  <div class="main">
+  <header class="ameowzon-header d-flex justify-content-between align-items-center px-4">
+    
+    <!-- Logo -->
+    <div class="d-flex align-items-center">
+      <h1 class="ameowzon-logo m-0">
+      <a href="{{ url_for('index.index') }}">
+        <span class="ameowzon-logo-inner">Ameowzon</span>
+      </a>
+    </h1>
+    </div>
+
+    <!-- Right-side user nav -->
+    <div class="ameowzon-user-area">
+      {% if current_user.is_authenticated %}
+        <span class="welcome-text">Welcome, {{ current_user.firstname }}!</span>
+
+        <a href="{{ url_for('cart.view_cart') }}" class="ameowzon-btn">Cart</a>
+        <a href="{{ url_for('users.profile') }}" class="ameowzon-btn">Profile</a>
+        <a href="{{ url_for('users.logout') }}" class="ameowzon-btn">Logout</a>
+      {% else %}
+        <a href="{{ url_for('users.login') }}" class="ameowzon-btn">Log in</a>
+      {% endif %}
+    </div>
+
+  </header>
+
+  <div class="main px-4">
     {% block content %}{% endblock %}
   </div>
 </body>
+
 
 </html>

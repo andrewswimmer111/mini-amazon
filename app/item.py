@@ -1,6 +1,6 @@
 
 from flask_login import current_user, login_required
-from flask import Blueprint, request, render_template, flash, redirect, url_for
+from flask import Blueprint, request, render_template, flash, redirect, url_for, abort
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField, DecimalField, SubmitField, IntegerField
@@ -66,6 +66,8 @@ def create_product():
 def edit_product(product_id):
 
     uid = current_user.id
+    if product.created_by != current_user.id:
+        abort(403)
 
     product = Product.get_with_id(product_id)
     
