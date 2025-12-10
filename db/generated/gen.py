@@ -46,18 +46,20 @@ def gen_users(num_users):
     ]
     with open('db/generated/Users.csv', 'w') as f:
         writer = get_csv_writer(f)
+        writer.writerow(['id', 'firstname', 'lastname', 'email', 'password', 'address', 'balance', 'bio'])
         print("Adding thomas")
 
-        writer.writerow({
-            'id': 0,
-            'firstname': 'Thomas',
-            'lastname': 'Lee',
-            'email': 'thomas15@yahoo.com',
-            'password': generate_password_hash('pass0'),
-            'address': fake.address().replace('\n', ', '),
-            'balance': Decimal(random.uniform(0, 1000)).quantize(Decimal('.01'), rounding=ROUND_HALF_UP),
-            'bio': "Avid fan of cats that say meow"
-        })
+        writer.writerow([
+            0,  # id
+            'Thomas',  # firstname
+            'Lee',  # lastname
+            'thomas15@yahoo.com',  # email
+            generate_password_hash('pass0'),  # password
+            fake.address().replace('\n', ', '),  # address
+            f"{random.uniform(0, 1000):.2f}",  # balance
+            "Avid fan of cats that say meow"  # bio
+        ])
+        users.append({'id': 0, 'firstname': 'Thomas', 'lastname': 'Lee', 'email': 'thomas15@yahoo.com'})
 
         print('Generating Users...', end=' ', flush=True)
         for uid in range(1, num_users + 1):

@@ -18,7 +18,13 @@
     <div> Created By: User ID {{ product.created_by }} </div>
     {% endif %}
 </div>
-<a href="{{ url_for('items.edit_product', product_id=product.id) }}" class="btn btn-outline-primary">Edit Product</a>
+
+{% if current_user.is_authenticated and current_user.id == product.created_by %}
+    <a href="{{ url_for('items.edit_product', product_id=product.id) }}" 
+       class="btn btn-outline-primary">
+        Edit Product
+    </a>
+{% endif %}
 
 <br><br>
 
