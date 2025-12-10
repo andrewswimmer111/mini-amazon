@@ -27,7 +27,8 @@ def gen_users(num_users):
             'email': 'thomas15@yahoo.com',
             'password': sha256_encode('pass0'),
             'address': fake.address().replace('\n', ', '),
-            'balance': Decimal(random.uniform(0, 1000)).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+            'balance': Decimal(random.uniform(0, 1000)).quantize(Decimal('.01'), rounding=ROUND_HALF_UP),
+            'bio': "Avid fan of cats that say meow"
         })
 
         # Generate remaining users
@@ -38,6 +39,7 @@ def gen_users(num_users):
             password = sha256_encode(f"pass{i}")
             address = fake.address().replace('\n', ', ')
             balance = Decimal(random.uniform(0, 1000)).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+            bio = ""
 
             writer.writerow({
                 'id': i,
@@ -46,7 +48,8 @@ def gen_users(num_users):
                 'email': email,
                 'password': password,
                 'address': address,
-                'balance': balance
+                'balance': balance,
+                'bio': bio
             })
 
     print(f"{num_users} users written to {filename}")

@@ -32,6 +32,6 @@ SELECT pg_catalog.setval(
 );
 
 \echo 'Loading Ledger...'
-\COPY Ledger FROM 'Ledger.csv' WITH DELIMITER ',' NULL '' CSV HEADER
+\COPY Ledger FROM 'Order_items.csv' WITH DELIMITER ',' NULL '' CSV HEADER
 
 \echo 'All CSV imports finished.'

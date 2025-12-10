@@ -6,7 +6,8 @@ CREATE TABLE Users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     address TEXT NOT NULL,
-    balance DECIMAL(12, 2) NOT NULL CHECK (balance >= 0)
+    balance DECIMAL(12, 2) NOT NULL CHECK (balance >= 0),
+    bio TEXT
 );
 
 -- Product category (using VARCHAR to allow any category name)
