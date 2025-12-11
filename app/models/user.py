@@ -101,7 +101,7 @@ WHERE id = :id
                 SET email = :email,
                     firstname = :firstname,
                     lastname = :lastname,
-                    address = :address
+                    address = :address,
                     bio = :bio
                 WHERE id = :uid
             """, email=email, firstname=firstname, lastname=lastname,
