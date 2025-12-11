@@ -6,6 +6,8 @@ from .models.inventory import InventoryItem
 from .models.product import Product
 from .models.user import User
 
+
+
 bp = Blueprint('sellers', __name__, url_prefix='/seller')
 
 
@@ -228,3 +230,173 @@ def add(product_id):
     )
     flash("Product added to your inventory.", "success")
     return redirect(url_for('items.view_product', product_id=product_id))
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SELLER ORDER HISTORY / FULFILLMENT (using Purchases + Ledger)
+# ─────────────────────────────────────────────────────────────────────────────
+
+@bp.route('/orders', methods=['GET'])
+@login_required
+def seller_orders():
+    """
+    Show this seller's orders (each row is a line item),
+    sorted reverse‑chronologically.
+    Uses Purchases + Ledger + Users (+ Inventory for current price).
+    """
+    seller_id = current_user.id
+
+    status_filter = request.args.get('status', 'incomplete')  # 'incomplete' | 'complete' | 'all'
+    search = request.args.get('q', '').strip().lower()
+
+    # Pull all line items for this seller, newest purchases first.
+    # NOTE: schema from your create.sql:
+    #   Purchases(purchase_id, address, date, buyer_id, fulfillment_status)
+    #   Ledger(purchase_id, seller_id, product_id, quantity, fulfillment_status)
+    #   Users(id, firstname, lastname, address, ...)
+    #   Inventory(seller_id, product_id, price, ...)
+    rows = current_app.db.execute(
+        """
+        SELECT
+            p.purchase_id                    AS order_id,
+            l.product_id,
+            u.firstname,
+            u.lastname,
+            p.address                        AS buyer_address,
+            l.quantity,
+            COALESCE(i.price, 0) * l.quantity AS payment_amount,
+            p.date                           AS time_purchased,
+            l.fulfillment_status
+        FROM Purchases p
+        JOIN Ledger l
+          ON l.purchase_id = p.purchase_id
+        JOIN Users u
+          ON u.id = p.buyer_id
+        LEFT JOIN Inventory i
+          ON i.seller_id = l.seller_id
+         AND i.product_id = l.product_id
+        WHERE l.seller_id = :seller_id
+        ORDER BY p.date DESC
+        """,
+        seller_id=seller_id,
+    )
+
+    transactions = []
+    for row in rows:
+        status_int = row[8]  # l.fulfillment_status
+        status_str = "Complete" if status_int == 1 else "Pending"
+
+        t = {
+            "order_id": row[0],
+            "product_id": row[1],
+            "buyer_name": f"{row[2]} {row[3]}",
+            "address": row[4],
+            "quantity": int(row[5]),
+            "payment_amount": float(row[6]),  # may be 0 if no Inventory row
+            "time_purchased": row[7],
+            "status": status_str,
+        }
+        transactions.append(t)
+
+    # Filter by status
+    if status_filter == "incomplete":
+        transactions = [t for t in transactions if t["status"] != "Complete"]
+    elif status_filter == "complete":
+        transactions = [t for t in transactions if t["status"] == "Complete"]
+    # 'all' → no extra filtering
+
+    # Simple text search (order id, product id, buyer, address)
+    if search:
+        search_lc = search.lower()
+        filtered = []
+        for t in transactions:
+            if (
+                search_lc in str(t["order_id"]).lower()
+                or search_lc in str(t["product_id"]).lower()
+                or search_lc in t["buyer_name"].lower()
+                or search_lc in (t["address"] or "").lower()
+            ):
+                filtered.append(t)
+        transactions = filtered
+
+    # Counts for summary badges
+    pending_count = current_app.db.execute(
+        """
+        SELECT COUNT(*)
+        FROM Ledger
+        WHERE seller_id = :seller_id AND fulfillment_status = 0
+        """,
+        seller_id=seller_id,
+    )[0][0]
+
+    complete_count = current_app.db.execute(
+        """
+        SELECT COUNT(*)
+        FROM Ledger
+        WHERE seller_id = :seller_id AND fulfillment_status = 1
+        """,
+        seller_id=seller_id,
+    )[0][0]
+
+    return render_template(
+        "seller_orders.html",
+        transactions=transactions,
+        status_filter=status_filter,
+        search=search,
+        pending_count=pending_count,
+        complete_count=complete_count,
+    )
+
+
+@bp.route('/orders/<int:order_id>/product/<int:product_id>/fulfill', methods=['POST'])
+@login_required
+def mark_line_item_fulfilled(order_id, product_id):
+    """
+    Mark a single line item as fulfilled for the current seller.
+    Uses Ledger.fulfillment_status.
+    Does NOT touch Inventory (stock was updated at purchase time).
+    """
+    seller_id = current_user.id
+
+    rows = current_app.db.execute(
+        """
+        UPDATE Ledger
+        SET fulfillment_status = 1
+        WHERE purchase_id       = :purchase_id
+          AND product_id        = :product_id
+          AND seller_id         = :seller_id
+          AND fulfillment_status = 0
+        RETURNING purchase_id
+        """,
+        purchase_id=order_id,
+        product_id=product_id,
+        seller_id=seller_id,
+    )
+
+    if rows:
+        flash(f"Marked order #{order_id}, product {product_id} as fulfilled.", "success")
+        purchase_id = rows[0][0]
+
+        # OPTIONAL: If you want to also update Purchases.fulfillment_status once
+        # all items are fulfilled, you can uncomment this block:
+        #
+        # current_app.db.execute(
+        #     """
+        #     UPDATE Purchases
+        #     SET fulfillment_status = 1
+        #     WHERE purchase_id = :purchase_id
+        #       AND NOT EXISTS (
+        #           SELECT 1 FROM Ledger
+        #           WHERE purchase_id = :purchase_id
+        #             AND fulfillment_status = 0
+        #       )
+        #     """,
+        #     purchase_id=purchase_id,
+        # )
+    else:
+        flash(
+            "Could not mark this line item as fulfilled. "
+            "It may already be complete or may not belong to you.",
+            "warning",
+        )
+
+    return redirect(request.referrer or url_for('sellers.seller_orders'))
