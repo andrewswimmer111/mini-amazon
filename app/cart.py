@@ -1,3 +1,9 @@
+"""Routes for viewing and modifying the user's shopping cart.
+
+This module provides endpoints to view the cart, add/update/remove
+items, and to create purchases from the current cart contents.
+"""
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 
@@ -11,6 +17,10 @@ bp = Blueprint('cart', __name__)
 @bp.route('/cart')
 @login_required
 def view_cart():
+    """Render the current user's cart page.
+
+    Aggregates formatted items, totals and user balance for rendering.
+    """
     uid = current_user.id
     items = Cart.format_cart_items(uid)
     total = Cart.get_cart_total(uid)
@@ -22,6 +32,13 @@ def view_cart():
 @bp.route('/cart/add', methods=['POST'])
 @login_required
 def add_to_cart():
+    """Add a product to the current user's cart.
+
+    Accepts JSON or form data with `product_id`, optional `seller_id`,
+    and optional `quantity`. If `seller_id` is omitted, a default seller
+    is selected from inventory.
+    """
+
     data = request.get_json(silent=True) or request.form
     try:
         pid = int(data.get('product_id'))
@@ -34,18 +51,17 @@ def add_to_cart():
         flash('Invalid add-to-cart parameters')
         return redirect(request.referrer or url_for('index.index'))
 
+    # If no seller provided, choose a default seller with inventory.
     if sid is None:
-        print(f"[add_to_cart] Finding default seller for product {pid}")
         sid = Cart.get_default_seller(pid)
         if sid is None:
-            print(f"[add_to_cart] No seller found with inventory for product {pid}")
+            # No available seller for this product.
             if request.is_json:
                 return jsonify({'error': 'no seller for product'}), 400
             flash('No seller currently has that product in inventory')
             return redirect(request.referrer or url_for('index.index'))
-        print(f"[add_to_cart] Selected default seller {sid} for product {pid}")
 
-    print(f"[add_to_cart] Adding to cart: user={current_user.id}, product={pid}, seller={sid}, qty={qty}")
+    # Persist the cart change.
     Cart.add_item(current_user.id, pid, sid, qty)
 
     if request.is_json:
@@ -58,6 +74,8 @@ def add_to_cart():
 @bp.route('/cart/update', methods=['POST'])
 @login_required
 def update_cart():
+    """Update the quantity of an item already in the cart."""
+
     data = request.get_json(silent=True) or request.form
     try:
         pid = int(data.get('product_id'))
@@ -81,6 +99,8 @@ def update_cart():
 @bp.route('/cart/remove', methods=['POST'])
 @login_required
 def remove_from_cart():
+    """Remove an item from the current user's cart."""
+
     data = request.get_json(silent=True) or request.form
     try:
         pid = int(data.get('product_id'))
@@ -103,12 +123,17 @@ def remove_from_cart():
 @bp.route('/cart/purchase', methods=['POST'])
 @login_required
 def purchase():
+    """Create a purchase from the user's cart and clear it on success.
+
+    Requires a non-empty `address` form field. Handles low-balance
+    and empty-cart cases returned by the purchase helper.
+    """
+
     address = request.form.get('address', '').strip()
     if not address:
         flash('Please provide a shipping address')
         return redirect(url_for('cart.view_cart'))
 
-    print(f"[purchase] Creating purchase for user {current_user.id} with address: {address}")
     purchase = Purchase.create_from_cart(current_user.id, address)
     
     if purchase is None:
