@@ -14,7 +14,7 @@
     <!-- Image -->
     <div class="product-image-box">
       {% if product.image %}
-      <img src="{{ product.image }}" alt="{{ product.name }}">
+      <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy">
       {% else %}
       <div class="product-image-placeholder">No Image</div>
       {% endif %}

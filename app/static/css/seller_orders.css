@@ -1,0 +1,95 @@
+/* ---------------- My Orders Title ---------------- */
+
+.orders-title {
+    font-weight: 900;
+    color: #004aad;  /* cobalt */
+    border-left: 6px solid #ff914d; /* orange */
+    padding-left: 12px;
+    margin-bottom: 20px;
+}
+
+/* ---------------- Status Badges ---------------- */
+
+.order-badge-pending {
+    background-color: #ff914d !important; /* orange */
+    color: white !important;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+.order-badge-complete {
+    background-color: #004aad !important; /* cobalt */
+    color: white !important;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+/* ---------------- Form Inputs ---------------- */
+
+.form-select,
+.form-control {
+    border: 2px solid #004aad !important; /* cobalt */
+}
+
+.form-select:focus,
+.form-control:focus {
+    border-color: #ff914d !important; /* orange */
+    box-shadow: 0 0 6px rgba(255, 145, 77, 0.4);
+}
+
+/* ---------------- Apply Button ---------------- */
+
+.btn-primary {
+    background-color: #004aad !important;
+    border-color: #004aad !important;
+}
+
+.btn-primary:hover {
+    background-color: #003680 !important;
+}
+
+/* ---------------- Table Header ---------------- */
+
+.table-themed-header th {
+    background-color: #eaf1ff !important; /* light cobalt tint */
+    color: #004aad !important;
+    border-bottom: 2px solid #004aad !important;
+}
+
+/* ---------------- Table Rows ---------------- */
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9fbff !important;
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: #ffffff !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #eef4ff !important;
+}
+
+/* ---------------- Links ---------------- */
+
+.table td a {
+    color: #004aad;
+    font-weight: 600;
+}
+
+.table td a:hover {
+    text-decoration: underline;
+}
+
+/* ---------------- Fulfillment Button ---------------- */
+
+.btn-success {
+    background-color: #004aad !important;
+    border-color: #004aad !important;
+}
+
+.btn-success:hover {
+    background-color: #003680 !important;
+}

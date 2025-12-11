@@ -1,25 +1,30 @@
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/seller_inventory.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/seller_orders.css') }}">
+</head>
+
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
-  <h2>My Orders</h2>
+
+  <h2 class="orders-title">My Orders</h2>
 
   <div class="mb-3">
-    <span class="badge bg-warning text-dark">Pending: {{ pending_count }}</span>
-    <span class="badge bg-success ms-2">Completed: {{ complete_count }}</span>
+    <span class="badge order-badge-pending">Pending: {{ pending_count }}</span>
+    <span class="badge order-badge-complete ms-2">Completed: {{ complete_count }}</span>
   </div>
 
   <form method="get" class="row g-2 mb-3">
     <div class="col-auto">
       <select name="status" class="form-select">
-        <option value="incomplete" {{ 'selected' if status_filter == 'incomplete' else '' }}>To be fulfilled</option>
-        <option value="complete" {{ 'selected' if status_filter == 'complete' else '' }}>Fulfilled</option>
-        <option value="all" {{ 'selected' if status_filter == 'all' else '' }}>All</option>
+        <option value="all" {{ 'selected' if status_filter=='all' else '' }}>All</option>
+        <option value="incomplete" {{ 'selected' if status_filter=='incomplete' else '' }}>To be fulfilled</option>
+        <option value="complete" {{ 'selected' if status_filter=='complete' else '' }}>Fulfilled</option>
       </select>
     </div>
     <div class="col-auto">
-      <input type="text" name="q" class="form-control"
-             placeholder="Search by order, buyer, address, product..."
-             value="{{ search }}">
+      <input type="text" name="q" class="form-control" placeholder="Search by order, buyer, address, product..."
+        value="{{ search }}">
     </div>
     <div class="col-auto">
       <button type="submit" class="btn btn-primary">Apply</button>
@@ -27,7 +32,7 @@
   </form>
 
   <table class="table table-striped">
-    <thead class="table-dark">
+    <thead class="table-themed-header">
       <tr>
         <th>Order #</th>
         <th>Product ID</th>
@@ -42,34 +47,47 @@
     </thead>
     <tbody>
       {% if transactions %}
-        {% for t in transactions %}
-          <tr>
-            <td>{{ t.order_id }}</td>
-            <td>{{ t.product_id }}</td>
-            <td>{{ t.buyer_name }}</td>
-            <td>{{ t.address }}</td>
-            <td>{{ t.quantity }}</td>
-            <td>{{ '%.2f'|format(t.payment_amount) }}</td>
-            <td>{{ t.time_purchased }}</td>
-            <td>{{ t.status }}</td>
-            <td>
-              {% if t.status != 'Complete' %}
-                <form method="post"
-                      action="{{ url_for('sellers.mark_line_item_fulfilled',
-                                         order_id=t.order_id,
-                                         product_id=t.product_id) }}">
-                  <button type="submit" class="btn btn-sm btn-success">Mark fulfilled</button>
-                </form>
-              {% else %}
-                <span class="text-success fw-bold">Fulfilled</span>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
+      {% for t in transactions %}
+      <tr>
+        <td>{{ t.order_id }}</td>
+        <td>{{ t.product_id }}</td>
+        <td>{{ t.buyer_name }}</td>
+        <td>{{ t.address }}</td>
+        <td>{{ t.quantity }}</td>
+        <td>{{ '%.2f'|format(t.payment_amount) }}</td>
+        <td>{{ t.time_purchased }}</td>
+        <td>
+          {% if t.status == 'Complete' %}
+          <span class="text-success fw-bold">Fulfilled</span>
+          {% else %}
+          <span class="text-warning fw-bold">Pending</span>
+          {% endif %}
+        </td>
+        <td>
+
+          {% if t.status != 'Complete' %}
+          <!-- Mark as fulfilled -->
+          <form method="post" action="{{ url_for('sellers.mark_line_item_fulfilled',
+                             order_id=t.order_id,
+                             product_id=t.product_id) }}" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-success">Mark fulfilled</button>
+          </form>
+
+          {% else %}
+          <!-- Already fulfilled — offer reverse action -->
+          <form method="post" action="{{ url_for('sellers.mark_line_item_unfulfilled',
+                             order_id=t.order_id,
+                             product_id=t.product_id) }}" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-warning">Mark unfulfilled</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
       {% else %}
-        <tr>
-          <td colspan="9" class="text-center">No orders match the current filters.</td>
-        </tr>
+      <tr>
+        <td colspan="9" class="text-center">No orders match the current filters.</td>
+      </tr>
       {% endif %}
     </tbody>
   </table>

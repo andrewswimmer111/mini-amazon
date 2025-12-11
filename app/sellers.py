@@ -286,7 +286,7 @@ def seller_orders():
     """
     seller_id = current_user.id
 
-    status_filter = request.args.get('status', 'incomplete')  # 'incomplete' | 'complete' | 'all'
+    status_filter = request.args.get('status', 'all')  # 'incomplete' | 'complete' | 'all'
     search = request.args.get('q', '').strip().lower()
 
     # Pull all line items for this seller, newest purchases first.
@@ -438,6 +438,41 @@ def mark_line_item_fulfilled(order_id, product_id):
             "Could not mark this line item as fulfilled. "
             "It may already be complete or may not belong to you.",
             "warning",
+        )
+
+    return redirect(request.referrer or url_for('sellers.seller_orders'))
+
+@bp.route('/orders/<int:order_id>/product/<int:product_id>/unfulfill', methods=['POST'])
+@login_required
+def mark_line_item_unfulfilled(order_id, product_id):
+    """
+    Reverse fulfillment for a single line item.
+    Marks Ledger.fulfillment_status back to 0.
+    """
+    seller_id = current_user.id
+
+    rows = app.db.execute(
+        """
+        UPDATE Ledger
+        SET fulfillment_status = 0
+        WHERE purchase_id       = :purchase_id
+          AND product_id        = :product_id
+          AND seller_id         = :seller_id
+          AND fulfillment_status = 1
+        RETURNING purchase_id
+        """,
+        purchase_id=order_id,
+        product_id=product_id,
+        seller_id=seller_id,
+    )
+
+    if rows:
+        flash(f"Marked order #{order_id}, product {product_id} as UNFULFILLED.", "warning")
+    else:
+        flash(
+            "Could not reverse fulfillment. "
+            "Item may already be pending or may not belong to you.",
+            "danger"
         )
 
     return redirect(request.referrer or url_for('sellers.seller_orders'))

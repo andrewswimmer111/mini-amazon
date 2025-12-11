@@ -42,7 +42,7 @@
 
     <!-- Product Image -->
     {% if e.product.image %}
-      <img class="inv-image" src="{{ e.product.image }}" alt="{{ e.product.name }}">
+      <img class="inv-image" src="{{ e.product.image }}" alt="{{ e.product.name }}" loading="lazy">
     {% else %}
       <div class="inv-placeholder">No Image</div>
     {% endif %}
