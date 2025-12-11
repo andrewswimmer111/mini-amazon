@@ -140,4 +140,20 @@
     transform: translateY(-2px);
 }
 
+.col-name {
+    max-width: 150px;      /* adjust to taste */
+}
 
+
+.col-price {
+    width: 180px;          /* more room for input + $ + button */
+}
+
+/* Control the price input group width */
+.price-group {
+    width: 160px;          /* tune this number: 150–200px is ideal */
+}
+
+.price-group input.form-control {
+    width: 90px;           /* wider input field */
+}
