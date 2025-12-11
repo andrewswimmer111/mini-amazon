@@ -295,7 +295,7 @@ def seller_orders():
     #   Ledger(purchase_id, seller_id, product_id, quantity, fulfillment_status)
     #   Users(id, firstname, lastname, address, ...)
     #   Inventory(seller_id, product_id, price, ...)
-    rows = current_app.db.execute(
+    rows = app.db.execute(
         """
         SELECT
             p.purchase_id                    AS order_id,
@@ -360,7 +360,7 @@ def seller_orders():
         transactions = filtered
 
     # Counts for summary badges
-    pending_count = current_app.db.execute(
+    pending_count = app.db.execute(
         """
         SELECT COUNT(*)
         FROM Ledger
@@ -369,7 +369,7 @@ def seller_orders():
         seller_id=seller_id,
     )[0][0]
 
-    complete_count = current_app.db.execute(
+    complete_count = app.db.execute(
         """
         SELECT COUNT(*)
         FROM Ledger
@@ -398,7 +398,7 @@ def mark_line_item_fulfilled(order_id, product_id):
     """
     seller_id = current_user.id
 
-    rows = current_app.db.execute(
+    rows = app.db.execute(
         """
         UPDATE Ledger
         SET fulfillment_status = 1
@@ -420,7 +420,7 @@ def mark_line_item_fulfilled(order_id, product_id):
         # OPTIONAL: If you want to also update Purchases.fulfillment_status once
         # all items are fulfilled, you can uncomment this block:
         #
-        # current_app.db.execute(
+        # app.db.execute(
         #     """
         #     UPDATE Purchases
         #     SET fulfillment_status = 1
