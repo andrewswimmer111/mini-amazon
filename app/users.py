@@ -85,13 +85,17 @@ def profile():
     if current_user.is_authenticated:
         purchases = Purchase.get_all_purchanditems_for_user(current_user.id)
         selling_products = InventoryItem.get_for_seller(current_user.id)
+        profit = User.getTotalProfit(current_user.id)
+        spending = User.getTotalSpending(current_user.id)
     else:
         flash("Please log in to view your profile.", "warning")
         return redirect(url_for('users.login'))  
     return render_template('userprofile.html', 
                            user=current_user, purchases=purchases,
                            selling_products=selling_products,
-                           balance=current_user.balance
+                           balance=current_user.balance,
+                           profit=profit,
+                           spending=spending
                            )
 
 #FORM TO UPDATE PROFILE

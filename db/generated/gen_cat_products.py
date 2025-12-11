@@ -1,7 +1,34 @@
 import csv
+import os
+import uuid
 import requests
 import random
 from faker import Faker
+
+STATIC_DIR = "app/static/product_images"   # or "static/product_images" depending on your structure
+os.makedirs(STATIC_DIR, exist_ok=True)
+
+def download_and_save_image(url):
+    try:
+        r = requests.get(url, timeout=6)
+        if r.status_code != 200:
+            print(f"Failed to fetch {url}")
+            return None
+        
+        # Generate unique filename
+        filename = f"{uuid.uuid4()}.jpg"
+        filepath = os.path.join(STATIC_DIR, filename)
+
+        # Save file
+        with open(filepath, "wb") as f:
+            f.write(r.content)
+
+        # Return the URL path Flask will serve
+        print(f"Saved image to {filename}")
+        return f"/static/product_images/{filename}"
+    except Exception as e:
+        print(f"Error downloading {url}: {e}")
+        return None
 
 def gen_cat_products(output_file="db/generated/Products.csv", max_cats=1500, sayings=None):
     """
@@ -82,16 +109,34 @@ def gen_cat_products(output_file="db/generated/Products.csv", max_cats=1500, say
         created_by = random.randint(1, 50)
         
         # Stable image URL (never changes)
-        image_url = f"https://cataas.com/cat/{image_id}/says/{saying}"
+        external_url = f"https://cataas.com/cat/{image_id}/says/{saying}"
+
+        # UNCOMMENT BELOW FOR CACHED IMAGES 9may take 20-30 min to run
+        # local_image_path = download_and_save_image(external_url)
+
+        # # If download fails, skip this product
+        # if not local_image_path:
+        #     continue
         
+        # writer.writerow([
+        #     cat_id,
+        #     product,
+        #     description,
+        #     local_image_path,
+        #     saying,
+        #     created_by
+        # ])
+
+        # COMMENT BELOW IF YOU UNCOMMENT ABOVE
         writer.writerow([
             cat_id,
             product,
             description,
-            image_url,
+            external_url,
             saying,
             created_by
         ])
+        
         
         cat_id += 1
     

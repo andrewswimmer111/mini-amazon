@@ -128,5 +128,45 @@ WHERE id = :id
                     """,
                        amount=amount, id=user_id)
         return "ok"
+    
+    @staticmethod
+    def getTotalSpending(userId):
+        """Gets sum of prices (quantity * price) for all items bought by the user.
+
+        Note: uses Inventory.price at query time (may differ from price at purchase time).
+
+        Worth of Purchased Items
+        """
+        rows = app.db.execute("""
+            SELECT SUM(l.quantity * COALESCE(i.price, 0))
+            FROM Ledger l
+            JOIN Purchases p ON p.purchase_id = l.purchase_id
+            LEFT JOIN Inventory i
+            ON i.seller_id = l.seller_id
+            AND i.product_id = l.product_id
+            WHERE p.buyer_id = :id
+        """, id=userId)
+
+        return float(rows[0][0]) if rows and rows[0][0] is not None else 0.0
+
+
+    @staticmethod
+    def getTotalProfit(userId):
+        """Gets sum of revenue (quantity * price) for all items sold by the user.
+
+        Note: uses Inventory.price at query time (may differ from price at purchase time).
+
+        Value of Sold Inventory (at current prices)
+        """
+        rows = app.db.execute("""
+            SELECT SUM(l.quantity * COALESCE(i.price, 0))
+            FROM Ledger l
+            LEFT JOIN Inventory i
+            ON i.seller_id = l.seller_id
+            AND i.product_id = l.product_id
+            WHERE l.seller_id = :id
+        """, id=userId)
+
+        return float(rows[0][0]) if rows and rows[0][0] is not None else 0.0
 
 

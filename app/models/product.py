@@ -1,4 +1,40 @@
+import os
+import uuid
+import requests
 from flask import current_app as app
+
+def save_image_locally(image_url):
+    """Download an image from an external URL and save it to static/product_images/."""
+    
+    # If already local, reuse
+    if image_url.startswith("/static/"):
+        return image_url
+
+    try:
+        # Download image
+        response = requests.get(image_url, timeout=6)
+        if response.status_code != 200:
+            print(f"Failed to download {image_url}")
+            return image_url  # fallback: keep original URL (or return None)
+
+        # Ensure directory exists
+        save_dir = os.path.join(app.root_path, "static/product_images")
+        os.makedirs(save_dir, exist_ok=True)
+
+        # Generate unique filename
+        filename = f"{uuid.uuid4()}.jpg"
+        filepath = os.path.join(save_dir, filename)
+
+        # Write file
+        with open(filepath, "wb") as f:
+            f.write(response.content)
+
+        # Return local path for database use
+        return f"/static/product_images/{filename}"
+
+    except Exception as e:
+        print(f"Error saving image: {e}")
+        return image_url  # fallback
 
 
 class Product:
@@ -48,6 +84,9 @@ class Product:
     @staticmethod
     def create(name, description, category, image=None, created_by=None):
         try:
+            if image:
+                image = save_image_locally(image)
+
             rows = app.db.execute('''
                 INSERT INTO PRODUCTS(name, description, image, category, created_by)
                 VALUES (:name, :description, :image, :category, :created_by)
@@ -63,6 +102,12 @@ class Product:
 
     @staticmethod
     def update(product_id, name, description, category, image=None, created_by=None):
+
+        if image:
+            prev_image = Product.get_with_id(product_id).image
+            if prev_image != image: 
+                image = save_image_locally(image)
+
         rows = app.db.execute('''
             UPDATE Products
             SET name = :name,
