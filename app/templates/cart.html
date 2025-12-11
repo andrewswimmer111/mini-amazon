@@ -1,13 +1,17 @@
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
+</head>
+
 {% extends 'base.html' %}
 
 {% block content %}
   <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="cart-header">
       <h2>Your Cart</h2>
       <a href="{{ url_for('index.index') }}" class="btn btn-secondary">Return to Home</a>
     </div>
 
-    <div class="alert alert-info mb-3">
+    <div class="balance-box">
       <strong>Available Balance:</strong> ${{ '%.2f' | format(balance) }}
     </div>
 

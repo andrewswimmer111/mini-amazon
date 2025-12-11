@@ -1,0 +1,310 @@
+/* -------------------- Flash Messages -------------------- */
+
+.alert {
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background-color: #d1ffd8;
+    border-left: 6px solid #28a745;
+}
+
+.alert-danger, .alert-error {
+    background-color: #ffe1e1;
+    border-left: 6px solid #dc3545;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    border-left: 6px solid #ff914d;
+}
+
+/* -------------------- User Header -------------------- */
+
+.user-header {
+    background: #ff914d;
+    border: 4px solid #004aad;
+    border-radius: 20px;
+    padding: 20px 28px;
+    margin-top: 20px;
+    margin-bottom: 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-header h1 {
+    color: white;
+    font-size: 32px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.user-details p {
+    margin: 4px 0;
+    font-size: 1.05rem;
+    color: white;
+}
+
+.user-header .btn {
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 8px 16px;
+}
+
+/* Inventory + Profile Buttons */
+.btn-success {
+    background-color: #004aad !important;
+    border: none !important;
+}
+
+.btn-success:hover {
+    background-color: #003680 !important;
+}
+
+.btn-primary {
+    background-color: white !important;
+    color: #004aad !important;
+    border: 2px solid #004aad !important;
+}
+
+.btn-primary:hover {
+    background-color: #004aad !important;
+    color: white !important;
+}
+
+/* -------------------- Purchase History Header -------------------- */
+
+.purchase-history-title {
+    font-weight: 900;
+    color: #004aad;
+    font-size: 32px;
+    padding-left: 14px;
+    border-left: 6px solid #ff914d;
+    letter-spacing: 1px;
+}
+
+/* -------------------- Purchase Table Container -------------------- */
+
+.purchase-table-wrapper {
+    background: #ffffff;
+    border: 4px solid #004aad;
+    border-radius: 18px;
+    padding: 15px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+/* -------------------- Table Styling -------------------- */
+
+.table thead th {
+    background-color: #f2f6ff;
+    color: #004aad;
+    font-weight: 700;
+    border-bottom: 2px solid #004aad;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #eef4ff !important;
+}
+
+/* -------------------- Purchase Row -------------------- */
+
+.purchase-row {
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.purchase-row:hover {
+    background-color: #f5f9ff !important;
+}
+
+/* -------------------- Arrow Icon Styling -------------------- */
+
+.arrow {
+    border: solid #004aad;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 4px;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.arrow.down {
+    transform: rotate(45deg);
+}
+
+.arrow.up {
+    transform: rotate(-135deg);
+}
+
+.purchase-row:hover .arrow {
+    border-color: #ff914d; /* orange hover */
+}
+
+/* -------------------- Status Badges -------------------- */
+
+.badge-success {
+    background-color: #2ecc71 !important;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 12px;
+}
+
+.badge-warning {
+    background-color: #ff914d !important;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 12px;
+    color: white !important;
+}
+
+/* -------------------- Expanded Detail Section -------------------- */
+
+.purchase-details {
+    background-color: #f8f9fa;
+    border-left: 4px solid #004aad;
+    border-right: 4px solid #004aad;
+    border-bottom: 4px solid #004aad;
+}
+
+.purchase-details table thead th {
+    background-color: #e8efff;
+    color: #004aad;
+    border-bottom: 1px solid #004aad;
+}
+
+.purchase-details table tbody tr td {
+    background-color: #fdfdfd;
+}
+
+/* highlight on hover inside details */
+.purchase-details table tbody tr:hover td {
+    background-color: #f1f7ff;
+}
+
+/* spacing inside details wrapper */
+.purchase-details .bg-light {
+    background-color: #f5f7fa !important;
+    border-radius: 12px;
+}
+
+
+/* -------------------- Account Balance -------------------- */
+
+.balance-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.balance-actions form {
+    flex: 1;
+}
+
+
+.balance-box {
+    background: #f7f7f7;
+    border-left: 6px solid #004aad;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+}
+
+.balance-box span {
+    color: #004aad;
+    font-size: 1.4rem;
+    font-weight: 900;
+}
+
+/* -------------------- Top Up + Withdraw Forms -------------------- */
+
+form .form-group label {
+    font-weight: 700;
+    color: #004aad;
+}
+
+form .btn-success {
+    background-color: #28a745 !important;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+form .btn-danger {
+    background-color: #dc3545 !important;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+form input.form-control {
+    border-radius: 10px;
+}
+
+/* Spacing between forms */
+form {
+    margin-bottom: 25px;
+}
+
+/* ---------- Profile Edit Card ---------- */
+.profile-card {
+    background-color: #f7f7f7;
+    border: 4px solid #004aad;
+    border-radius: 20px;
+    padding: 25px 35px;
+    max-width: 650px;
+    margin: auto;
+    margin-top: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+/* ---------- Section Titles ---------- */
+.section-title {
+    font-weight: 900;
+    color: #004aad;
+    margin-bottom: 15px;
+    margin-top: 10px;
+}
+
+.section-divider {
+    border-color: #004aad;
+    margin: 25px 0;
+}
+
+/* ---------- Input Styling ---------- */
+.ameowzon-input {
+    border-radius: 12px !important;
+    border: 2px solid #004aad !important;
+    padding: 8px 12px !important;
+    font-size: 1rem !important;
+}
+
+.ameowzon-input:focus {
+    outline: none !important;
+    border-color: #ff914d !important;
+    box-shadow: 0 0 8px rgba(255, 145, 77, 0.6);
+}
+
+/* ---------- Submit Button ---------- */
+.ameowzon-submit {
+    background-color: #004aad !important;
+    color: white !important;
+    font-weight: 900;
+    border-radius: 14px;
+    padding: 10px 18px;
+    border: none;
+    transition: transform 0.2s;
+}
+
+.ameowzon-submit:hover {
+    background-color: #003680 !important;
+    transform: translateY(-2px);
+}

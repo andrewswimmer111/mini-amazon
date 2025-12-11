@@ -1,0 +1,165 @@
+/* -------------------- Product Banner -------------------- */
+.product-banner {
+    background-color: #ff914d;
+    border: 4px solid #004aad;
+    color: white;
+    font-size: 36px;
+    font-weight: 900;
+    text-align: center;
+    padding: 18px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+}
+
+/* -------------------- Product Info Card -------------------- */
+.product-info-card {
+    background-color: #f7f7f7;
+    border: 4px solid #004aad;
+    border-radius: 20px;
+    padding: 25px 30px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+    margin-top: 20px;
+    width: fit-content;
+}
+
+.pic-and-details {
+    display: flex;
+    gap: 25px;
+}
+
+.product-image-box img {
+    max-width: 260px;
+    border-radius: 16px;
+    border: 3px solid #004aad;
+}
+
+.product-image-placeholder {
+    width: 260px;
+    height: 260px;
+    background: #ddd;
+    border: 3px solid #004aad;
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #737373;
+    font-style: italic;
+}
+
+.product-details-text p {
+    margin: 6px 0;
+    font-size: 1.05rem;
+}
+
+/* -------------------- Edit/Delete Buttons -------------------- */
+/* ---------- Product Title ---------- */
+.product-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: #004aad;
+    margin-bottom: 15px;
+}
+
+/* ---------- Attribute List ---------- */
+.product-attributes p {
+    margin: 6px 0;
+    font-size: 1.05rem;
+    color: #333;
+}
+
+.product-attributes strong {
+    color: #004aad;
+}
+
+/* ---------- Action Button Container ---------- */
+.product-actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 20px;
+}
+
+/* ---------- Edit/Delete Buttons ---------- */
+
+.product-btn-edit,
+.product-btn-delete {
+    width: 160px;        /* SAME SIZE FOR BOTH */
+    text-align: center;
+    border-radius: 12px;
+    padding: 10px 0;
+    font-weight: 800;
+    font-size: 1rem;
+    height: fit-content;
+}
+
+/* Edit Button */
+.product-btn-edit {
+    background-color: #004aad !important;
+    color: white !important;
+}
+
+.product-btn-edit:hover {
+    background-color: #003680 !important;
+}
+
+/* Delete Button */
+.product-btn-delete {
+    background-color: #d9534f !important;
+    color: white !important;
+}
+
+.product-btn-delete:hover {
+    background-color: #b30000 !important;
+}
+
+
+/* -------------------- Seller Availability Section -------------------- */
+.seller-availability-card {
+    border: 4px solid #004aad;
+    background: #fdfdfd;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-weight: 900;
+    font-size: 26px;
+    color: #004aad;
+    border-left: 6px solid #ff914d;
+    padding-left: 12px;
+    margin-bottom: 18px;
+}
+
+/* Table */
+.product-seller-table thead th {
+    background-color: #eaf1ff;
+    color: #004aad;
+    border-bottom: 2px solid #004aad;
+}
+
+.product-seller-table tbody tr:hover {
+    background-color: #eef4ff;
+}
+
+.cart-add-form input[type="number"] {
+    width: 70px;
+    border-radius: 10px;
+    border: 2px solid #004aad;
+    padding: 4px;
+}
+
+.login-to-add {
+    color: #004aad;
+    font-weight: 700;
+}
+
+.no-sellers-msg {
+    padding: 10px;
+    background-color: #ff914d;
+    border: 3px solid #004aad;
+    color: white;
+    border-radius: 12px;
+    text-align: center;
+}

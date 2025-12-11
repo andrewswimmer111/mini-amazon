@@ -1,38 +1,57 @@
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+
 {% extends "base.html" %}
 
 {% block content %}
 
-<h1>Login</h1>
+<div class="login-wrapper">
 
-<form action="" method="post" novalidate>
-  {{ form.hidden_tag() }}
-  <p>
-    {{ form.email.label }}<br/>
-    {{ form.email(size=32) }}<br/>
-    {% for error in form.email.errors %}
-    <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-  </p>
-  <p>
-    {{ form.password.label }}<br/>
-    {{ form.password(size=32) }}<br/>
-    {% for error in form.password.errors %}
-    <span style="color: red;">[{{ error }}]</span>
-    {% endfor %}
-  </p>
-  <p>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <ul>
-      {% for message in messages %}
-      <li>{{ message }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-    {% endwith %}
-  </p>
-  {{ form.submit(class_="btn btn-black") }}
-  <a class="btn btn-secondary" href="{{ url_for('users.register') }}" role="button">Register</a>
-</form>
+    <div class="login-card">
+        <h1 class="login-title">Login</h1>
+
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+
+            <!-- Email -->
+            <div class="form-group">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control login-input", size=32) }}
+                {% for error in form.email.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control login-input", size=32) }}
+                {% for error in form.password.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="form-flash">
+                  {% for message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <!-- Buttons -->
+            <div class="login-buttons">
+                {{ form.submit(class_="btn login-btn") }}
+                <a class="btn register-btn" href="{{ url_for('users.register') }}">Register</a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
 
 {% endblock %}

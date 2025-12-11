@@ -1,0 +1,141 @@
+/* ------------------ internal inventory ------------------ */
+/* -------------------- Inventory Header -------------------- */
+
+.container h2 {
+    font-weight: 900;
+    color: #004aad;                     /* cobalt */
+    border-left: 6px solid #ff914d;     /* orange */
+    padding-left: 12px;
+}
+
+/* Return button */
+.btn-secondary {
+    background-color: white !important;
+    color: #004aad !important;          /* cobalt */
+    border: 2px solid #004aad !important;
+}
+
+.btn-secondary:hover {
+    background-color: #004aad !important;
+    color: white !important;
+}
+
+/* -------------------- Stats Alert -------------------- */
+
+.alert-info {
+    background-color: #eaf3ff !important;     /* light cobalt tint */
+    border-left: 6px solid #004aad !important;/* cobalt */
+    color: #004aad !important;
+}
+
+/* -------------------- Card Headers -------------------- */
+
+.card {
+    border-color: #004aad !important;     /* cobalt */
+}
+
+.card-header {
+    background-color: #ff914d !important; /* orange */
+    border-bottom: 3px solid #004aad !important;
+    color: white !important;
+}
+
+/* -------------------- Form Fields -------------------- */
+
+.form-control {
+    border: 2px solid #004aad !important;     /* cobalt outline */
+}
+
+.form-control:focus {
+    border-color: #ff914d !important;         /* orange focus */
+    box-shadow: 0 0 6px rgba(255,145,77,0.4);
+}
+
+/* Buttons inside forms */
+.btn-success {
+    background-color: #004aad !important;     /* cobalt */
+}
+
+.btn-success:hover {
+    background-color: #003680 !important;     /* darker cobalt */
+}
+
+.btn-primary {
+    background-color: #004aad !important;     /* cobalt */
+}
+
+.btn-primary:hover {
+    background-color: #003680 !important;
+}
+
+.btn-danger {
+    background-color: #d9534f !important;     /* Bootstrap red, unchanged */
+}
+
+.btn-danger:hover {
+    background-color: #b30000 !important;
+}
+
+/* Small outline buttons (price update) */
+.btn-outline-secondary {
+    border-color: #004aad !important;         /* cobalt */
+    color: #004aad !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #004aad !important;     /* invert */
+    color: white !important;
+}
+
+/* -------------------- Tables -------------------- */
+
+.table thead th {
+    background-color: #eaf1ff !important; /* light cobalt tint */
+    color: #004aad !important;            /* cobalt text */
+    border-bottom: 2px solid #004aad !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9fbff !important; /* subtle tinted row */
+}
+
+.table-hover tbody tr:hover {
+    background-color: #eef4ff !important; /* slightly darker tint */
+}
+
+.table td a {
+    color: #004aad;                       /* cobalt link */
+}
+
+.table td a:hover {
+    text-decoration: underline;
+}
+
+/* Price update input group */
+.input-group-text {
+    background-color: #ff914d !important; /* orange */
+    color: white !important;
+    border-color: #004aad !important;     /* cobalt outline */
+}
+
+.input-group-sm input {
+    border-color: #004aad !important;     /* cobalt input border */
+}
+
+/* -------------------- Empty State -------------------- */
+
+.alert-info:last-of-type {
+    border-left: 6px solid #004aad !important; /* cobalt */
+    background-color: #f1f7ff !important;      /* pale cobalt tint */
+    color: #004aad !important;
+}
+
+/* -------------------- Confirm Removal Dialog -------------------- */
+
+.btn-danger {
+    transition: 0.15s ease;
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+}

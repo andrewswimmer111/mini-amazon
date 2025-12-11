@@ -1,74 +1,106 @@
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/product.css') }}">
+</head>
+
 {% extends "base.html" %}
 
 {% block content %}
 
-<div>
-    <h3> Product details </h3>
-    <div> ID: {{ product.id }} </div>
-    <div> Name: {{ product.name }}</div>
-    <div> Description: {{ product.description }}</div>
-    {% if product.image %}
-    <div> 
-        Image: <br>
-        <img src="{{ product.image }}" alt="{{ product.name }}" style="max-width: 300px; max-height: 300px;">
+<!-- Product Info Card -->
+<div class="product-info-card">
+
+  <div class="pic-and-details">
+
+    <!-- Image -->
+    <div class="product-image-box">
+      {% if product.image %}
+      <img src="{{ product.image }}" alt="{{ product.name }}">
+      {% else %}
+      <div class="product-image-placeholder">No Image</div>
+      {% endif %}
     </div>
-    {% endif %}
-    <div> Category: {{ product.category }} </div>
-    {% if product.created_by %}
-    <div> Created By: User ID {{ product.created_by }} </div>
-    {% endif %}
+
+    <!-- Text Details -->
+    <div class="product-details-text">
+
+      <h2 class="product-title">{{ product.name }}</h2>
+
+      <div class="product-attributes">
+        <p><strong>ID:</strong> {{ product.id }}</p>
+        <p><strong>Description:</strong> {{ product.description }}</p>
+        <p><strong>Category:</strong> {{ product.category }}</p>
+
+        {% if product.created_by %}
+        <p><strong>Created By:</strong> User {{ product.created_by }}</p>
+        {% endif %}
+      </div>
+
+      {% if current_user.is_authenticated and current_user.id == product.created_by %}
+      <div class="product-actions">
+        <a href="{{ url_for('items.edit_product', product_id=product.id) }}" class="btn product-btn-edit">
+          Edit Product
+        </a>
+
+        <form action="{{ url_for('items.delete_product', product_id=product.id) }}" method="POST">
+          <button type="submit" class="btn product-btn-delete"
+            onclick="return confirm('Are you sure you want to delete this product?');">
+            Delete Product
+          </button>
+        </form>
+      </div>
+      {% endif %}
+
+    </div>
+
+
+  </div>
 </div>
 
-{% if current_user.is_authenticated and current_user.id == product.created_by %}
-    <a href="{{ url_for('items.edit_product', product_id=product.id) }}" 
-       class="btn btn-outline-primary">
-        Edit Product
-    </a>
-{% endif %}
+<br>
 
-<br><br>
-
-<div>
-  <h3>Available from Sellers</h3>
+<!-- Seller Availability Section -->
+<div class="seller-availability-card">
+  <h3 class="section-title">Available From Sellers</h3>
 
   {% if inventory %}
-    <table class='table table-hover table-bordered container'>
-      <thead class="thead-dark">
-        <tr>
-          <th scope="col">Seller ID</th>
-          <th scope="col">Price</th>
-          <th scope="col">Quantity Available</th>
-          <th scope="col">Add to Cart</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for i in inventory %}
-          <tr>
-            <td>{{ i.seller_id }}</td>
-            <td>${{ "%.2f"|format(i.price) }}</td>
-            <td>{{ i.quantity }}</td>
-            <td>
-              {% if current_user.is_authenticated %}
-                {% if i.quantity > 0 %}
-                  <form method="post" action="{{ url_for('cart.add_to_cart') }}" style="display:inline-block">
-                    <input type="hidden" name="product_id" value="{{ product.id }}">
-                    <input type="hidden" name="seller_id" value="{{ i.seller_id }}">
-                    <input type="number" name="quantity" value="1" min="1" max="{{ i.quantity }}" style="width:70px" aria-label="quantity">
-                    <button type="submit" class="btn btn-sm btn-success">Add to Cart</button>
-                  </form>
-                {% else %}
-                  <span class="text-muted">Out of Stock</span>
-                {% endif %}
-              {% else %}
-                <a href="{{ url_for('users.login') }}">Log in to add</a>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <table class="table table-hover table-bordered product-seller-table">
+    <thead>
+      <tr>
+        <th>Seller ID</th>
+        <th>Price</th>
+        <th>Qty Available</th>
+        <th>Add to Cart</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in inventory %}
+      <tr>
+        <td>{{ i.seller_id }}</td>
+        <td>${{ "%.2f"|format(i.price) }}</td>
+        <td>{{ i.quantity }}</td>
+        <td>
+          {% if current_user.is_authenticated %}
+          {% if i.quantity > 0 %}
+          <form method="post" action="{{ url_for('cart.add_to_cart') }}" class="cart-add-form">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="seller_id" value="{{ i.seller_id }}">
+            <input type="number" name="quantity" value="1" min="1" max="{{ i.quantity }}">
+            <button type="submit" class="btn btn-sm btn-success">Add</button>
+          </form>
+          {% else %}
+          <span class="text-muted">Out of Stock</span>
+          {% endif %}
+          {% else %}
+          <a href="{{ url_for('users.login') }}" class="login-to-add">Log in to add</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
   {% else %}
-    <div>No sellers currently offering this product</div>
+  <div class="no-sellers-msg">No sellers currently offering this product.</div>
   {% endif %}
 </div>
 

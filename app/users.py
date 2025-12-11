@@ -100,6 +100,7 @@ class UpdateProfileForm(FlaskForm):
     lastname = StringField('Last Name', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     address = StringField('Address', validators=[Optional()])
+    bio=StringField('Bio', validators=[Optional()])
     password = PasswordField('New Password', validators=[Optional()])
     password2 = PasswordField('Confirm Password', validators=[Optional(), EqualTo('password')])
     submit = SubmitField('Update Profile')
@@ -118,6 +119,7 @@ def update_profile():
         form.lastname.data = current_user.lastname
         form.email.data = current_user.email
         form.address.data = current_user.address
+        form.bio.data = current_user.bio
         return render_template('update_profile.html', form=form) #allows user to see existing info
 
     if form.validate_on_submit():
@@ -127,6 +129,7 @@ def update_profile():
             firstname=form.firstname.data,
             lastname=form.lastname.data,
             address=form.address.data,
+            bio=form.bio.data,
             password=form.password.data if form.password.data else None
         ) #writes updated info to database
 

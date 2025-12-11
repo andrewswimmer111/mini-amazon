@@ -1,184 +1,154 @@
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+</head>
+
 {% extends "base.html" %}
 {% block content %}
 
 {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{ category }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
 {% endwith %}
 
-<div class="d-flex justify-content-between align-items-center">
-    <div>
-        <h1>Welcome, {{ user.firstname }} {{ user.lastname }}!</h1>
-        <p class="text-muted mb-1">
-            <strong>Email:</strong> {{ user.email }}
-        </p>
-        <p class="text-muted">
-            <strong>Address:</strong> {{ user.address }}
-        </p>
+<div class="user-header">
+  <div>
+    <h1>Welcome, {{ user.firstname }} {{ user.lastname }}!</h1>
+    <div class="user-details">
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Address:</strong> {{ user.address }}</p>
+      <p><strong>Bio:</strong> {{ user.bio }}</p>
     </div>
+  </div>
 
-    <div>
-        <a href="{{ url_for('sellers.my_inventory') }}" class="btn btn-success mr-2">
-            📦 My Inventory
-        </a>
-        <a href="{{ url_for('users.update_profile') }}" class="btn btn-primary">
-            Update Profile
-        </a>
-    </div>
-</div> 
-
-<br><br>
-
+  <div>
+    <a href="{{ url_for('sellers.my_inventory') }}" class="btn btn-success mr-2">
+      📦 My Inventory
+    </a>
+    <a href="{{ url_for('users.update_profile') }}" class="btn btn-primary">
+      Update Profile
+    </a>
+  </div>
+</div>
 
 
-  <br><br>
-  <h2>Purchase History</h2>
-  
-  {% if purchases %}
-    <div class="table-responsive mt-4">
-      <table class="table table-hover">
-        <thead class="thead-light">
-          <tr>
-            <th>Order #</th>
-            <th>Date</th>
-            <th>Address</th>
-            <th>Total</th>
-            <th>Order Status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for p in purchases %}
-            <tr class="purchase-row" data-purchase-id="{{ p.purchase_id }}">
-              <td>#{{ p.purchase_id }}</td>
-              <td>{{ p.date.strftime('%Y-%m-%d') }}</td>
-              <td>{{ p.address }}</td>
-              <td>${{ "%.2f"|format(p.totalprice) }}</td>
-              <td>
-                {% if p.fulfillment_status == 1 %}
-                  <span class="badge badge-success">Fulfilled</span>
-                {% else %}
-                  <span class="badge badge-warning">Pending</span>
-                {% endif %}
-              </td>
-              <td>
-                <button class="btn btn-link dropdown-toggle p-0" type="button">
-                  <i class="arrow down"></i>
-                </button>
-              </td>
-            </tr>
-            <tr class="purchase-details" id="details-{{ p.purchase_id }}" style="display: none;">
-              <td colspan="6">
-                <div class="px-4 py-3 bg-light">
-                  <table class="table table-sm mb-0">
-                    <thead>
-                      <tr>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Subtotal</th>
-                        <th>Item Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for item in p.items %}
-                        <tr>
-                          <td>{{ item.product_name }}</td>
-                          <td>{{ item.quantity }}</td>
-                          <td>${{ "%.2f"|format(item.price) }}</td>
-                          <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
-                          <td>
-                            {% if item.item_fulfillment_status == 1 %}
-                              <span class="badge badge-success">Fulfilled</span>
-                            {% else %}
-                              <span class="badge badge-warning">Pending</span>
-                            {% endif %}
-                          </td>
-                        </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+<div class="balance-box">
+  Account Balance: <span>${{ balance }}</span>
 
-    <style>
-      .arrow {
-        border: solid #6c757d;
-        border-width: 0 2px 2px 0;
-        display: inline-block;
-        padding: 3px;
-        transition: transform 0.2s;
-      }
-      
-      .down {
-        transform: rotate(45deg);
-        -webkit-transform: rotate(45deg);
-      }
-      
-      .up {
-        transform: rotate(-135deg);
-        -webkit-transform: rotate(-135deg);
-      }
+  <div class="balance-actions">
 
-      .purchase-row {
-        cursor: pointer;
-      }
-
-      .purchase-row:hover {
-        background-color: #f8f9fa;
-      }
-
-      .purchase-details {
-        background-color: #f8f9fa;
-      }
-    </style>
-
-    <script>
-      $(document).ready(function() {
-        $('.purchase-row').click(function() {
-          const purchaseId = $(this).data('purchase-id');
-          const detailsRow = $(`#details-${purchaseId}`);
-          const arrow = $(this).find('.arrow');
-          
-          detailsRow.toggle();
-          arrow.toggleClass('down up');
-        });
-      });
-    </script>
-  {% else %}
-    <p>No purchases yet.</p>
-  {% endif %}
-
-  <br><br>
-
-  <h2>Account Balance: ${{ balance }}</h2>
-  <!-- Top up form -->
-  <form method="POST" action="{{ url_for('users.topup') }}">
+    <form method="POST" action="{{ url_for('users.topup') }}">
       <div class="form-group">
-          <label>Add Funds</label>
-          <input type="number" step="0.01" name="amount" class="form-control" required>
+        <label>Add Funds</label>
+        <input type="number" step="0.01" name="amount" class="form-control" required>
       </div>
       <button class="btn btn-success" type="submit">Top Up</button>
-  </form>
+    </form>
 
-  <br>
-
-<!-- Withdraw form -->
-<form method="POST" action="{{ url_for('users.withdraw') }}">
-    <div class="form-group">
+    <form method="POST" action="{{ url_for('users.withdraw') }}">
+      <div class="form-group">
         <label>Withdraw Funds</label>
         <input type="number" step="0.01" name="amount" class="form-control" required>
-    </div>
-    <button class="btn btn-danger" type="submit">Withdraw</button>
-</form>
+      </div>
+      <button class="btn btn-danger" type="submit">Withdraw</button>
+    </form>
+
+  </div>
+</div>
+
+
+<br><br>
+<h2 class="purchase-history-title">Purchase History</h2>
+
+{% if purchases %}
+<div class="purchase-table-wrapper table-responsive mt-4 mb-4">
+  <table class="table table-hover">
+    <thead class="thead-light">
+      <tr>
+        <th>Order #</th>
+        <th>Date</th>
+        <th>Address</th>
+        <th>Total</th>
+        <th>Order Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in purchases %}
+      <tr class="purchase-row" data-purchase-id="{{ p.purchase_id }}">
+        <td>#{{ p.purchase_id }}</td>
+        <td>{{ p.date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ p.address }}</td>
+        <td>${{ "%.2f"|format(p.totalprice) }}</td>
+        <td>
+          {% if p.fulfillment_status == 1 %}
+          <span class="badge badge-success">Fulfilled</span>
+          {% else %}
+          <span class="badge badge-warning">Pending</span>
+          {% endif %}
+        </td>
+        <td>
+          <button class="btn btn-link dropdown-toggle p-0" type="button">
+            <i class="arrow down"></i>
+          </button>
+        </td>
+      </tr>
+      <tr class="purchase-details" id="details-{{ p.purchase_id }}" style="display: none;">
+        <td colspan="6">
+          <div class="px-4 py-3 bg-light">
+            <table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Subtotal</th>
+                  <th>Item Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in p.items %}
+                <tr>
+                  <td>{{ item.product_name }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>${{ "%.2f"|format(item.price) }}</td>
+                  <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                  <td>
+                    {% if item.item_fulfillment_status == 1 %}
+                    <span class="badge badge-success">Fulfilled</span>
+                    {% else %}
+                    <span class="badge badge-warning">Pending</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $('.purchase-row').click(function () {
+      const purchaseId = $(this).data('purchase-id');
+      const detailsRow = $(`#details-${purchaseId}`);
+      const arrow = $(this).find('.arrow');
+
+      detailsRow.toggle();
+      arrow.toggleClass('down up');
+    });
+  });
+</script>
+{% else %}
+<p>No purchases yet.</p>
+{% endif %}
 
 
 

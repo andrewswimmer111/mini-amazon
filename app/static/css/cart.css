@@ -1,0 +1,120 @@
+/* -------------------- Cart Header -------------------- */
+
+.cart-header {
+    background-color: #ff914d;
+    border: 2px solid #004aad;
+    border-radius: 20px;
+    padding: 16px 22px;
+    margin-bottom: 25px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-header h2 {
+    margin: 0;
+    font-weight: 900;
+    font-size: 30px;
+}
+
+.cart-header .btn-secondary {
+    background: white !important;
+    color: #004aad !important;
+    border: 2px solid #004aad !important;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.cart-header .btn-secondary:hover {
+    background: #004aad !important;
+    color: white !important;
+}
+
+/* -------------------- Balance Box -------------------- */
+
+.balance-box {
+    background: #f7faff;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #004aad;
+}
+
+/* -------------------- Cart Table -------------------- */
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9fbff !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #eef4ff !important;
+}
+
+.table thead th {
+    background-color: #eaf1ff;
+    border-bottom: 2px solid #004aad;
+    color: #004aad;
+    font-weight: 700;
+}
+
+.table tfoot th {
+    background-color: #eef3ff;
+    border-top: 2px solid #004aad;
+}
+
+/* Align numeric columns */
+.text-right {
+    text-align: right;
+}
+
+/* -------------------- Buttons -------------------- */
+
+.btn-danger {
+    background-color: #d9534f !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 700;
+}
+
+.btn-primary {
+    background-color: #004aad !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 8px 16px;
+    font-weight: 700;
+}
+
+.btn-primary:hover {
+    background-color: #003680 !important;
+}
+
+/* -------------------- Shipping Address Form -------------------- */
+
+#address.form-control {
+    border-radius: 12px;
+    border: 2px solid #004aad;
+}
+
+#address.form-control:focus {
+    border-color: #ff914d;
+    box-shadow: 0 0 6px rgba(255, 145, 77, 0.6);
+}
+
+/* -------------------- Flash Messages -------------------- */
+
+.alert-info {
+    background-color: #e7f0ff;
+    color: #004aad;
+    border-left: 6px solid #004aad;
+    border-radius: 12px;
+    padding: 12px 16px;
+}
+
+.alert-danger {
+    background-color: #ffe6e6;
+    border-left: 6px solid #d9534f;
+    border-radius: 12px;
+    padding: 12px 16px;
+}

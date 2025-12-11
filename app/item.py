@@ -65,15 +65,10 @@ def create_product():
 @login_required
 def edit_product(product_id):
 
+    product = Product.get_with_id(product_id)
     uid = current_user.id
     if product.created_by != current_user.id:
         abort(403)
-
-    product = Product.get_with_id(product_id)
-    
-    # Check creation (not implemented in db yet)
-    # if product.created_by != uid:
-    #     return
 
     categories = Product.get_categories()
     form = ProductForm(obj=product)
@@ -101,3 +96,10 @@ def edit_product(product_id):
         return redirect(url_for('items.view_product', product_id=product_id))
 
     return render_template('create_product.html', form=form, edit=True)
+
+
+@bp.route('/product/<int:product_id>/delete', methods=['POST'])
+@login_required
+def delete_product(product_id):
+    Product.delete_product(product_id)
+    return redirect(url_for('sellers.seller_inventory_view', seller_id=current_user.id))

@@ -73,8 +73,10 @@ def create_product_and_add():
     name = request.form.get('name', '').strip()
     description = request.form.get('description', '').strip()
     price = request.form.get('price', type=float)
+    image = request.form.get('image', '').strip()
     category = request.form.get('category', '').strip()
     quantity = request.form.get('quantity', 1, type=int)
+    created_by = current_user.id
     
     # Validation
     if not name:
@@ -89,6 +91,10 @@ def create_product_and_add():
         flash("Please enter a valid price.", "danger")
         return redirect(url_for('sellers.my_inventory'))
     
+    if not image: 
+        flash("Image is required.", "danger")
+        return redirect(url_for('sellers.my_inventory'))
+    
     if not category:
         flash("Please select a category.", "danger")
         return redirect(url_for('sellers.my_inventory'))
@@ -98,7 +104,7 @@ def create_product_and_add():
         return redirect(url_for('sellers.my_inventory'))
     
     # Create the product
-    product = Product.create(name=name, description=description, category=category)
+    product = Product.create(name=name, description=description, category=category, image=image, created_by=created_by)
     if not product:
         flash("Failed to create product. The name might already exist.", "danger")
         return redirect(url_for('sellers.my_inventory'))

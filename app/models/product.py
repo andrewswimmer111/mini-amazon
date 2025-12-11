@@ -81,6 +81,20 @@ class Product:
         id = rows[0][0]
         # build and return a Product object (match the shape your app uses)
         return Product.get_with_id(id)
+    
+    @staticmethod
+    def delete_product(product_id):
+        # Remove inventory entries referencing this product
+        app.db.execute("""
+            DELETE FROM Inventory
+            WHERE product_id = :product_id
+        """, product_id=product_id)
+
+        # Delete the product
+        app.db.execute("""
+            DELETE FROM Products
+            WHERE id = :product_id
+        """, product_id=product_id)
         
     def getPriceRange(id):
         rows = app.db.execute('''
